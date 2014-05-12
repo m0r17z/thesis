@@ -23,7 +23,7 @@ def preamble(i):
 
     minutes_before_3_hour = 15
     slurm_preamble = '#SBATCH -J MLP_2hiddens_on_us_%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=15000\n'
+    slurm_preamble += '#SBATCH --mem=20000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
     slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
     return pre + slurm_preamble
@@ -111,6 +111,6 @@ def new_trainer(pars, data):
 
 
 def make_report(pars, trainer, data):
-    return {'train_loss': trainer.score(trainer.eval_data['train']),
-            'val_loss': trainer.score(trainer.eval_data['val'])}
+    return {'train_loss': trainer.score(*trainer.eval_data['train']),
+            'val_loss': trainer.score(*trainer.eval_data['val'])}
 
