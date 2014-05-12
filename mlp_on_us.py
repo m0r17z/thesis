@@ -68,6 +68,13 @@ def load_data(pars):
    return X, Z, VX, VZ
 
 
+def generate_dict(trainer,data):
+    trainer.val_key = 'val'
+    trainer.eval_data = {}
+    trainer.eval_data['train'] = ([data[0],data[1]])
+    trainer.eval_data['val'] = ([data[2], data[3]])
+
+
 def new_trainer(pars, data):
     X, Z, VX, VZ = data
     input_size = len(X[0])
@@ -80,7 +87,7 @@ def new_trainer(pars, data):
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
     n_report = len(X)/batch_size
-    max_iter = n_report * 5000
+    max_iter = n_report * 1000
 
     interrupt = climin.stops.OnSignal()
     print dir(climin.stops)
@@ -91,18 +98,19 @@ def new_trainer(pars, data):
     ])
 
     pause = climin.stops.ModuloNIterations(n_report)
-    reporter = KeyPrinter(['n_iter', 'val_loss'])
+    reporter = KeyPrinter(['n_iter', 'train_loss', 'val_loss'])
 
     t = Trainer(
         m,
         stop=stop, pause=pause, report=reporter,
         interrupt=interrupt)
-    t.val_key = 'val'
-    t.eval_data['val'] = ([VX, VZ])
+
+    generate_dict(t,data)
 
     return t
 
 
 def make_report(pars, trainer, data):
-    return {'val_loss': trainer.score(data[2],data[3])}
+    return {'train_loss': trainer.score(trainer.eval_data['train']),
+            'val_loss': trainer.score(trainer.eval_data['val'])}
 
