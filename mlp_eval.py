@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""Usage:
-    mlp_eval.py <location>
+"""Usage: mlp_eval.py <location>
+
 """
 
 import docopt
