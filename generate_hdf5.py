@@ -6,7 +6,7 @@ from sklearn.preprocessing import scale
 import warnings
 
 
-def generate_dataset():
+def generate_bin_dataset():
     ################################################ LOADING AND CLEANING THE DATA #########################################
     samples = open('/local-home/moritz/Dataset/samples.txt')
     labels = open('/local-home/moritz/Dataset/labels.txt')
