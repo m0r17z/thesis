@@ -1,4 +1,4 @@
-__author__ = 'Mo'
+# -*- coding: utf-8 -*-
 
 """Usage:
     mlp_eval.py <location>
@@ -36,4 +36,5 @@ def evaluate_mlp(args):
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
+    print args
     evaluate_mlp(args)
