@@ -37,9 +37,9 @@ def determine_label((x,y,z)):
 
 def generate_real_dataset_binning():
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('/local-home/moritz/Dataset/samples.txt')
-    labels = open('/local-home/moritz/Dataset/labels.txt')
-    annotations = open('/local-home/moritz/Dataset/annotations.txt')
+    samples = open('./samples.txt')
+    labels = open('./labels.txt')
+    annotations = open('./annotations.txt')
 
     bad_samples = []
     real_labels = []
@@ -82,8 +82,9 @@ def generate_real_dataset_binning():
             bad_samples.append(list_ind)
 
     print 'need to remove %i bad samples.' %len(bad_samples)
-    ################# REMOVE EMPTY SAMPLES
-    for ind, bad_ind in enumerate(bad_samples):
+    ################# REMOVE BAD SAMPLES
+    for ind in np.arange(len(bad_samples)):
+        bad_ind = bad_samples[ind]
         real_ind = bad_ind - ind
         qpoint_lists.pop(real_ind)
         real_labels.pop(real_ind)
@@ -100,11 +101,10 @@ def generate_real_dataset_binning():
     pcol = 0
     ps = 0
 
-    # ASSUMPTION: relevant area is never less than 0.9 meters and more than 4.5 meters on the x-axis, 2.5 meters to both sides on the y-axis
+    # ASSUMPTION: relevant area is never less than 0.7 meters and more than 4.4 meters on the x-axis, 2.5 meters to both sides on the y-axis
     # and 2 meters on the z-axis away from the sensors
-    # unit is 2 centimeters here
     bin_cm = 10
-    max_x_cm = 450
+    max_x_cm = 440
     min_x_cm = 70
     max_y_cm = 250
     max_z_cm = 200
@@ -114,9 +114,9 @@ def generate_real_dataset_binning():
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("usarray_data_unscaled_bin.hdf5", "w")
+    f = h5.File("usarray_data_unscaled_real.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
-    f.create_dataset('labels/bin_labels', (len(real_labels),), dtype='i')
+    f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
 
@@ -124,18 +124,15 @@ def generate_real_dataset_binning():
 
     for i,qpoint_list in enumerate(qpoint_lists):
         grid = np.zeros((x_range, y_range, z_range))
-        #print grid.shape
+
         for qpoint in qpoint_list:
             x = int(float(qpoint[0])*100) / bin_cm
             y = (int(float(qpoint[1])*100) + max_y_cm) / bin_cm
             z = int(float(qpoint[2])*100) > (max_z_cm / nr_z_intervals)
-            if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0:# or z < 0 or z > 199:
-                #print 'found QPoint out of range: ignoring it.'
+            if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0:
                 continue
             pow = float(qpoint[4])
-            #print 'QPoint %s is inserted into the grid at position (%i,%i,%i) with value %f ' %(qpoint,x,y,z,pow)
             if grid[x-min_x_cm/bin_cm][y][z] != 0:
-                #print 'WARNING: Point Collision.'
                 pcol += 1
                 if grid[x-min_x_cm/bin_cm][y][z] < pow:
                     grid[x-min_x_cm/bin_cm][y][z] = pow
@@ -303,24 +300,35 @@ def generate_train_val_test_set():
     val_labels = []
     val_annotations = []
 
+    test_set = []
+    test_labels = []
+    test_annotations = []
+
     for i in np.arange(len(samples)):
-        if np.random.random_sample() <= 0.7:
+        rand =  np.random.random_sample()
+        if rand <= 0.6:
             train_set.append(samples[i])
             train_labels.append(labels[i])
             train_annotations.append(annotations[i])
-        else:
+        elif rand > 0.6 and rand <= 0.8 :
             val_set.append(samples[i])
             val_labels.append(labels[i])
             val_annotations.append(annotations[i])
+        else:
+            test_set.append(samples[i])
+            test_labels.append(labels[i])
+            test_annotations.append(annotations[i])
 
 
-
-    print 'validation set has %i samples. ' %len(val_set)
-    print 'validation set has %i labels.' %len(val_labels)
-    print 'validation set has %i annotations.' %len(val_annotations)
     print 'training set has %i samples.' %len(train_set)
     print 'training set has %i labels.' %len(train_labels)
     print 'training set has %i annotations.' %len(train_annotations)
+    print 'validation set has %i samples. ' %len(val_set)
+    print 'validation set has %i labels.' %len(val_labels)
+    print 'validation set has %i annotations.' %len(val_annotations)
+    print 'test set has %i samples. ' %len(test_set)
+    print 'test set has %i labels.' %len(test_labels)
+    print 'test set has %i annotations.' %len(test_annotations)
 
     file.close()
 
@@ -328,26 +336,33 @@ def generate_train_val_test_set():
 
     train_len = len(train_set)
     val_len = len(val_set)
+    test_len = len(test_set)
     dim = len(train_set[0])
 
     f = h5.File("usarray_data_scaled_train_val_bin.hdf5", "w")
     f.create_dataset('trainig_set/train_set', (train_len,dim), dtype='f')
     f.create_dataset('validation_set/val_set', (val_len,dim), dtype='f')
-    f.create_dataset('trainig_labels/bin_train_labels', (train_len,), dtype='i')
-    f.create_dataset('validation_labels/bin_val_labels', (val_len,), dtype='i')
+    f.create_dataset('test_set/test_set', (test_len,dim), dtype='f')
+    f.create_dataset('trainig_labels/real_train_labels', (train_len,), dtype='i')
+    f.create_dataset('validation_labels/real_val_labels', (val_len,), dtype='i')
+    f.create_dataset('test_labels/real_test_labels', (test_len,), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('training_annotations/train_annotations', (train_len,), dtype=dt)
     f.create_dataset('validation_annotations/val_annotations', (val_len,), dtype=dt)
+    f.create_dataset('test_annotations/test_annotations', (test_len,), dtype=dt)
 
 
     f['trainig_set/train_set'][...] = train_set
     f['validation_set/val_set'][...] = val_set
+    f['test_set/test_set'][...] = test_set
     print 'created data sets.'
     f['trainig_labels/bin_train_labels'][...] = train_labels
-    f['validation_labels/bin_val_labels'][...] = val_labels
+    f['validation_labels/real_val_labels'][...] = val_labels
+    f['test_labels/real_test_labels'][...] = test_labels
     print 'created labels.'
     f['training_annotations/train_annotations'][...] = train_annotations
     f['validation_annotations/val_annotations'][...] = val_annotations
+    f['test_annotations/test_annotations'][...] = test_annotations
     print 'created annotations.'
 
     f.close()
@@ -355,5 +370,6 @@ def generate_train_val_test_set():
 if __name__ == '__main__':
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
+            generate_real_dataset_binning()
             generate_train_val_test_set()
 
