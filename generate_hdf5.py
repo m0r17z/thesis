@@ -6,7 +6,161 @@ from sklearn.preprocessing import scale
 import warnings
 
 
-def generate_bin_dataset():
+def determine_label((x,y,z)):
+    if  x > 3:
+        if y > 1:
+            return 1
+        elif y <= 1 and y > 0:
+            return 2
+        elif y <= 0 and y > -1:
+            return 3
+        elif y <= -1:
+            return 4
+    elif x <= 3 and x > 2:
+        if y > 1:
+            return 5
+        elif y <= 1 and y > 0:
+            return 6
+        elif y <= 0 and y > -1:
+            return 7
+        elif y <= -1:
+            return 8
+    elif x <= 2:
+        if y > 1:
+            return 9
+        elif y <= 1 and y > 0:
+            return 10
+        elif y <= 0 and y > -1:
+            return 11
+        elif y <= -1:
+            return 12
+
+def generate_real_dataset_binning():
+    ################################################ LOADING AND CLEANING THE DATA #########################################
+    samples = open('/local-home/moritz/Dataset/samples.txt')
+    labels = open('/local-home/moritz/Dataset/labels.txt')
+    annotations = open('/local-home/moritz/Dataset/annotations.txt')
+
+    bad_samples = []
+    real_labels = []
+    qpoint_lists = []
+    label_list = []
+    annotation_list = []
+
+    for data in samples:
+        qpoint_lists = data.split(';')
+    for data in labels:
+        label_list = data.split(';')
+    for data in annotations:
+        annotation_list = data.split(';')
+
+    print 'found %i qpoint lists.' % len(qpoint_lists)
+    print 'found %i labels.' % len(label_list)
+    print 'found %i annotations.' % len(annotation_list)
+
+    for list_ind in np.arange(len(qpoint_lists)):
+        bad = False
+
+        ################# PROCESS THE LABELS
+        if annotation_list[list_ind][0:2] != 'vo' and annotation_list[list_ind][0:2] != 'fl' and annotation_list[list_ind][0:2] != 'mi' and annotation_list[list_ind][0:2] != 'ja':
+            real_labels.append(0)
+        else:
+            position = labels[list_ind].split(',')
+            if position[0] == -2000 or position[0] == -1000:
+                bad = True
+            else:
+                real_labels.append(determine_label((position[0],position[1],position[2])))
+
+        ################# PROCESS THE Q-POINTS
+        qpoint_lists[list_ind] = qpoint_lists[list_ind].split(':')
+        for point_ind in np.arange(len(qpoint_lists[list_ind])):
+            qpoint_lists[list_ind][point_ind] = qpoint_lists[list_ind][point_ind].split(',')
+            if len(qpoint_lists[list_ind][point_ind]) != 7:
+                bad = True
+
+        if bad:
+            bad_samples.append(list_ind)
+
+    print 'need to remove %i bad samples.' %len(bad_samples)
+    ################# REMOVE EMPTY SAMPLES
+    for ind, bad_ind in enumerate(bad_samples):
+        real_ind = bad_ind - ind
+        qpoint_lists.pop(real_ind)
+        real_labels.pop(real_ind)
+        annotation_list.pop(real_ind)
+
+    print str(len(qpoint_lists)) + ' samples remain after purging.'
+    print str(len(real_labels)) + ' labels remain after purging.'
+    print str(len(annotation_list)) + ' annotations remain after purging.'
+    samples.close()
+    labels.close()
+    annotations.close()
+
+    ################################################## PROJECTING THE DATA INTO A GRID #####################################
+    pcol = 0
+    ps = 0
+
+    # ASSUMPTION: relevant area is never less than 0.9 meters and more than 4.5 meters on the x-axis, 2.5 meters to both sides on the y-axis
+    # and 2 meters on the z-axis away from the sensors
+    # unit is 2 centimeters here
+    bin_cm = 10
+    max_x_cm = 450
+    min_x_cm = 70
+    max_y_cm = 250
+    max_z_cm = 200
+    nr_z_intervals = 2
+
+    x_range = max_x_cm/bin_cm - min_x_cm/bin_cm
+    y_range = max_y_cm*2/bin_cm
+    z_range = nr_z_intervals
+
+    f = h5.File("usarray_data_unscaled_bin.hdf5", "w")
+    f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
+    f.create_dataset('labels/bin_labels', (len(real_labels),), dtype='i')
+    dt = h5.special_dtype(vlen=unicode)
+    f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
+
+    last_per = -1
+
+    for i,qpoint_list in enumerate(qpoint_lists):
+        grid = np.zeros((x_range, y_range, z_range))
+        #print grid.shape
+        for qpoint in qpoint_list:
+            x = int(float(qpoint[0])*100) / bin_cm
+            y = (int(float(qpoint[1])*100) + max_y_cm) / bin_cm
+            z = int(float(qpoint[2])*100) > (max_z_cm / nr_z_intervals)
+            if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0:# or z < 0 or z > 199:
+                #print 'found QPoint out of range: ignoring it.'
+                continue
+            pow = float(qpoint[4])
+            #print 'QPoint %s is inserted into the grid at position (%i,%i,%i) with value %f ' %(qpoint,x,y,z,pow)
+            if grid[x-min_x_cm/bin_cm][y][z] != 0:
+                #print 'WARNING: Point Collision.'
+                pcol += 1
+                if grid[x-min_x_cm/bin_cm][y][z] < pow:
+                    grid[x-min_x_cm/bin_cm][y][z] = pow
+            grid[x-min_x_cm/bin_cm][y][z] = pow
+            ps += 1
+
+        # unroll the grid into a vector?!
+        f['data_set/data_set'][i] = grid.flatten()
+        f['labels/bin_labels'][i] = real_labels[i]
+        f['annotations/annotations'][i] = annotation_list[i]
+        curr_percent = int(float(i) / len(qpoint_lists) * 100)
+        if last_per != curr_percent:
+            last_per = curr_percent
+            print 'have now looked at %i%% of the data.' % int(float(i) / len(qpoint_lists) * 100)
+
+    print 'percentage of point collision: ' + str(float(pcol)/ps)
+    print 'number of samples: ' +str(len(f['data_set/data_set']))
+    print 'dimensionality of the samples: ' +str(len(f['data_set/data_set'][0]))
+    print 'number of labels: ' +str(len(f['labels/bin_labels']))
+    print 'number of annotations: ' +str(len(f['annotations/annotations']))
+
+    f.close()
+
+
+def generate_bin_dataset_binning():
     ################################################ LOADING AND CLEANING THE DATA #########################################
     samples = open('/local-home/moritz/Dataset/samples.txt')
     labels = open('/local-home/moritz/Dataset/labels.txt')
@@ -158,6 +312,8 @@ def generate_train_val_test_set():
             val_set.append(samples[i])
             val_labels.append(labels[i])
             val_annotations.append(annotations[i])
+
+
 
     print 'validation set has %i samples. ' %len(val_set)
     print 'validation set has %i labels.' %len(val_labels)
