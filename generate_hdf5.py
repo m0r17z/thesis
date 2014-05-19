@@ -158,7 +158,7 @@ def generate_real_dataset_binning():
     print 'percentage of point collision: ' + str(float(pcol)/ps)
     print 'number of samples: ' +str(len(f['data_set/data_set']))
     print 'dimensionality of the samples: ' +str(len(f['data_set/data_set'][0]))
-    print 'number of labels: ' +str(len(f['labels/bin_labels']))
+    print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
     f.close()
