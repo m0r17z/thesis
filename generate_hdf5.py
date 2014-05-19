@@ -148,7 +148,7 @@ def generate_real_dataset_binning():
 
         # unroll the grid into a vector?!
         f['data_set/data_set'][i] = grid.flatten()
-        f['labels/bin_labels'][i] = real_labels[i]
+        f['labels/real_labels'][i] = real_labels[i]
         f['annotations/annotations'][i] = annotation_list[i]
         curr_percent = int(float(i) / len(qpoint_lists) * 100)
         if last_per != curr_percent:
