@@ -346,6 +346,10 @@ def generate_train_val_test_set():
     test_len = len(test_set) - len(test_set)%10000
     dim = len(train_set[0])
 
+    print 'length of training set after pruning: %i' %train_len
+    print 'length of validation set after pruning: %i' %val_len
+    print 'length of test set after pruning: %i' %test_len
+
     f = h5.File("usarray_data_scaled_train_val_test_real.hdf5", "w")
     f.create_dataset('trainig_set/train_set', (train_len,dim), dtype='f')
     f.create_dataset('validation_set/val_set', (val_len,dim), dtype='f')
