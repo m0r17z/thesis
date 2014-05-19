@@ -46,6 +46,7 @@ def generate_real_dataset_binning():
     qpoint_lists = []
     label_list = []
     annotation_list = []
+    label_count = np.zeros((1,13))
 
     for data in samples:
         qpoint_lists = data.split(';')
@@ -64,12 +65,16 @@ def generate_real_dataset_binning():
         ################# PROCESS THE LABELS
         if annotation_list[list_ind][0:2] != 'vo' and annotation_list[list_ind][0:2] != 'fl' and annotation_list[list_ind][0:2] != 'mi' and annotation_list[list_ind][0:2] != 'ja':
             real_labels.append(0)
+            label_count[0][0] += 1
         else:
-            position = labels[list_ind].split(',')
-            if position[0] == -2000 or position[0] == -1000:
+            position = label_list[list_ind].split(',')
+            if float(position[0]) == -2000 or float(position[0]) == -1000:
+                real_labels.append(-1)
                 bad = True
             else:
-                real_labels.append(determine_label((position[0],position[1],position[2])))
+                lab = determine_label((float(position[0]),float(position[1]),float(position[2])))
+                real_labels.append(lab)
+                label_count[0][lab] += 1
 
         ################# PROCESS THE Q-POINTS
         qpoint_lists[list_ind] = qpoint_lists[list_ind].split(':')
@@ -83,16 +88,18 @@ def generate_real_dataset_binning():
 
     print 'need to remove %i bad samples.' %len(bad_samples)
     ################# REMOVE BAD SAMPLES
-    for ind in np.arange(len(bad_samples)):
-        bad_ind = bad_samples[ind]
+    ind = 0
+    for bad_ind in bad_samples:
         real_ind = bad_ind - ind
         qpoint_lists.pop(real_ind)
         real_labels.pop(real_ind)
         annotation_list.pop(real_ind)
+        ind += 1
 
     print str(len(qpoint_lists)) + ' samples remain after purging.'
     print str(len(real_labels)) + ' labels remain after purging.'
     print str(len(annotation_list)) + ' annotations remain after purging.'
+    print 'percentages of the labels are %s' %str(label_count/len(qpoint_lists))
     samples.close()
     labels.close()
     annotations.close()
@@ -114,11 +121,11 @@ def generate_real_dataset_binning():
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("usarray_data_unscaled_real.hdf5", "w")
-    f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
-    f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
-    dt = h5.special_dtype(vlen=unicode)
-    f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
+    f = h5.File("./usarray_data_unscaled_real.hdf5", "w")
+    #f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
+    #f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
+    #dt = h5.special_dtype(vlen=unicode)
+    #f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
 
     last_per = -1
 
@@ -371,5 +378,5 @@ if __name__ == '__main__':
     with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             generate_real_dataset_binning()
-            generate_train_val_test_set()
+            #generate_train_val_test_set()
 
