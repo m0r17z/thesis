@@ -122,10 +122,10 @@ def generate_real_dataset_binning():
     z_range = nr_z_intervals
 
     f = h5.File("./usarray_data_unscaled_real.hdf5", "w")
-    #f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
-    #f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
-    #dt = h5.special_dtype(vlen=unicode)
-    #f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
+    f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
+    f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
+    dt = h5.special_dtype(vlen=unicode)
+    f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
 
     last_per = -1
 
