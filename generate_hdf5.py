@@ -292,10 +292,10 @@ def generate_bin_dataset_binning():
 def generate_train_val_test_set():
     ############################################### SCALING DATA AND GENERATING TRAINING AND VALIDATION SET ######################################
 
-    file = h5.File("usarray_data_unscaled_bin.hdf5", "r")
+    file = h5.File("usarray_data_unscaled_real.hdf5", "r")
 
     samples = scale(file['data_set/data_set'][...])
-    labels = file['labels/bin_labels'][...]
+    labels = file['labels/real_labels'][...]
     annotations = file['annotations/annotations'][...]
 
 
@@ -341,12 +341,12 @@ def generate_train_val_test_set():
 
     ########################################################################################################################
 
-    train_len = len(train_set)
-    val_len = len(val_set)
-    test_len = len(test_set)
+    train_len = len(train_set) - len(train_set)%10000
+    val_len = len(val_set) - len(val_set)%10000
+    test_len = len(test_set) - len(test_set)%10000
     dim = len(train_set[0])
 
-    f = h5.File("usarray_data_scaled_train_val_bin.hdf5", "w")
+    f = h5.File("usarray_data_scaled_train_val_test_real.hdf5", "w")
     f.create_dataset('trainig_set/train_set', (train_len,dim), dtype='f')
     f.create_dataset('validation_set/val_set', (val_len,dim), dtype='f')
     f.create_dataset('test_set/test_set', (test_len,dim), dtype='f')
@@ -359,17 +359,17 @@ def generate_train_val_test_set():
     f.create_dataset('test_annotations/test_annotations', (test_len,), dtype=dt)
 
 
-    f['trainig_set/train_set'][...] = train_set
-    f['validation_set/val_set'][...] = val_set
-    f['test_set/test_set'][...] = test_set
+    f['trainig_set/train_set'][...] = train_set[:train_len]
+    f['validation_set/val_set'][...] = val_set[:val_len]
+    f['test_set/test_set'][...] = test_set[:test_len]
     print 'created data sets.'
-    f['trainig_labels/bin_train_labels'][...] = train_labels
-    f['validation_labels/real_val_labels'][...] = val_labels
-    f['test_labels/real_test_labels'][...] = test_labels
+    f['trainig_labels/bin_train_labels'][...] = train_labels[:train_len]
+    f['validation_labels/real_val_labels'][...] = val_labels[:val_len]
+    f['test_labels/real_test_labels'][...] = test_labels[:test_len]
     print 'created labels.'
-    f['training_annotations/train_annotations'][...] = train_annotations
-    f['validation_annotations/val_annotations'][...] = val_annotations
-    f['test_annotations/test_annotations'][...] = test_annotations
+    f['training_annotations/train_annotations'][...] = train_annotations[:train_len]
+    f['validation_annotations/val_annotations'][...] = val_annotations[:val_len]
+    f['test_annotations/test_annotations'][...] = test_annotations[:test_len]
     print 'created annotations.'
 
     f.close()
