@@ -367,7 +367,7 @@ def generate_train_val_test_set():
     f['validation_set/val_set'][...] = val_set[:val_len]
     f['test_set/test_set'][...] = test_set[:test_len]
     print 'created data sets.'
-    f['trainig_labels/bin_train_labels'][...] = train_labels[:train_len]
+    f['trainig_labels/real_train_labels'][...] = train_labels[:train_len]
     f['validation_labels/real_val_labels'][...] = val_labels[:val_len]
     f['test_labels/real_test_labels'][...] = test_labels[:test_len]
     print 'created labels.'
