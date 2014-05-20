@@ -67,16 +67,19 @@ def load_data(pars):
 
 
 def make_data_dict(trainer,data):
+    X, Z, VX, VZ = data
     trainer.val_key = 'val'
     trainer.eval_data = {}
-    trainer.eval_data['train'] = ([data[0],data[1]])
-    trainer.eval_data['val'] = ([data[2], data[3]])
+    trainer.eval_data['train'] = ([X,Z])
+    trainer.eval_data['val'] = ([VX, VZ])
 
 
 def new_trainer(pars, data):
     X, Z, VX, VZ = data
-    input_size = len(X[0])
-    output_size = len(Z[0])
+    # 3700 for binning
+    input_size = 3700
+    # 13 as there are 12 fields
+    output_size = 13
     batch_size = pars['batch_size']
     m = Mlp(input_size, pars['n_hidden'], output_size, 
             hidden_transfers=pars['hidden_transfers'], out_transfer='softmax',
@@ -84,7 +87,8 @@ def new_trainer(pars, data):
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
-    n_report = len(X)/batch_size
+    # length of dataset should be 270000 (for no time-integration)
+    n_report = 270000/batch_size
     max_iter = n_report * 5000
 
     interrupt = climin.stops.OnSignal()
