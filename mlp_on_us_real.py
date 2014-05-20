@@ -55,10 +55,10 @@ def draw_pars(n=1):
 
 def load_data(pars):
    data = h5.File('../../usarray_data_scaled_train_val_test_real.hdf5','r')
-   X = data['trainig_set/train_set'][...]
-   Z = data['trainig_labels/real_train_labels'][...]
-   VX = data['validation_set/val_set'][...]
-   VZ = data['validation_labels/real_val_labels'][...]
+   X = data['trainig_set/train_set']
+   Z = data['trainig_labels/real_train_labels']
+   VX = data['validation_set/val_set']
+   VZ = data['validation_labels/real_val_labels']
    Z = one_hot(Z,13)
    VZ = one_hot(VZ,13)
 

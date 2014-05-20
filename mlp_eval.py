@@ -26,8 +26,8 @@ def evaluate_mlp(args):
                 trainer = cPickle.load(fp)
                 trainer.model.parameters.data[...] = trainer.best_pars
                 data = h5.File(os.path.join(data_dir,'usarray_data_scaled_train_val_test_real.hdf5'),'r')
-                TX = data['test_set/test_set'][...]
-                TZ = data['test_labels/real_test_labels'][...]
+                TX = data['test_set/test_set']
+                TZ = data['test_labels/real_test_labels']
                 TZ = one_hot(TZ,13)
 
                 n_wrong = 1 - T.eq(T.argmax(trainer.model.exprs['output'], axis=1),
