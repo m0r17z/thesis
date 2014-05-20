@@ -15,11 +15,13 @@ from breze.learn.data import one_hot
 
 import h5py as h5
 
-data = h5.File("/local-home/moritz/PycharmProjects/usaray_learning/usarray_data_scaled_train_val_bin.hdf5", "r")
+data = h5.File("/local-home/moritz/PycharmProjects/usaray_learning/usarray_data_scaled_train_val_test_real.hdf5", "r")
 X = data['trainig_set/train_set'][...]
 Z = data['trainig_labels/bin_train_labels'][...]
 VX = data['validation_set/val_set'][...]
 VZ = data['validation_labels/bin_val_labels'][...]
+TX = data['validation_set/val_set'][...]
+TZ = data['validation_labels/bin_val_labels'][...]
 
 
 X = X[:333000]

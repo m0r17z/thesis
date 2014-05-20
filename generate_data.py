@@ -163,7 +163,7 @@ def generate_real_dataset_binning():
 
     f.close()
 
-
+############################## WAS ONLY USED FOR INITIAL TESTS - IS NOT UP 2 DATE ##########################################
 def generate_bin_dataset_binning():
     ################################################ LOADING AND CLEANING THE DATA #########################################
     samples = open('/local-home/moritz/Dataset/samples.txt')
