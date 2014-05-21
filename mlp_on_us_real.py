@@ -45,8 +45,9 @@ def draw_pars(n=1):
         'n_hidden': [[200,200],[500,500],[1000,1000],[700,700],[100,100],[50,50]],
         'hidden_transfers': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
         'par_std': [1.5, 1, 1e-1, 1e-2,1e-3,1e-4,1e-5],
-	'batch_size': [10000,5000,2000,1000],
+	    'batch_size': [10000,5000,2000,1000],
         'optimizer': OptimizerDistribution(),
+        'L2': [0.1, 0.01, 0.001, .0001, .00001, .05, .005, .0005],
     }
 
     sampler = ParameterSampler(grid, n)
@@ -86,6 +87,14 @@ def new_trainer(pars, data):
             loss='cat_ce', batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
+
+    weight_decay = ((m.parameters.in_to_hidden**2).sum()
+                    + (m.parameters.hidden_to_hidden_0**2).sum()
+                    + (m.parameters.hidden_to_out**2).sum())
+    weight_decay /= m.exprs['inpt'].shape[0]
+    m.exprs['true_loss'] = m.exprs['loss']
+    c_wd = pars['L2']
+    m.exprs['loss'] = m.exprs['loss'] + c_wd * weight_decay
 
     # length of dataset should be 270000 (for no time-integration)
     n_report = 270000/batch_size
