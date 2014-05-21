@@ -35,7 +35,7 @@ def evaluate_mlp(args):
                 f_n_wrong = trainer.model.function(['inpt', 'target'], n_wrong)
 
                 result = f_n_wrong(TX,TZ)
-                result_s = 'model achieved %f%% classification error on the validation set' %(result)
+                result_s = 'model achieved %f%% classification error on the test set' %(result)
                 print result_s
                 with open(os.path.join(dir,'eval_mlp_real_result.txt'),'w') as f:
                     f.write(result_s)
