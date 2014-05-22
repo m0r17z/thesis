@@ -64,19 +64,19 @@ def load_data(pars):
    VZ = one_hot(VZ,13)
 
 
-   return X, Z, VX, VZ
+   return (X, Z), (VX, VZ)
 
 
 def make_data_dict(trainer,data):
-    X, Z, VX, VZ = data
+    train_data, val_data = data
     trainer.val_key = 'val'
     trainer.eval_data = {}
-    trainer.eval_data['train'] = ([X,Z])
-    trainer.eval_data['val'] = ([VX, VZ])
+    trainer.eval_data['train'] = ([data for data in train_data])
+    trainer.eval_data['val'] = ([data for data in val_data])
 
 
 def new_trainer(pars, data):
-    X, Z, VX, VZ = data
+
     # 3700 for binning
     input_size = 3700
     # 13 as there are 12 fields
