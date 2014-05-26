@@ -137,11 +137,11 @@ def generate_real_dataset_binning(sparse=False, eps=0.1):
     print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
 
     if sparse:
-        transformer = random_projection.SparseRandomProjection()
-        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...], n_components=n_dims)
+        transformer = random_projection.SparseRandomProjection(n_components=n_dims)
+        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...])
     else:
-        transformer = random_projection.GaussianRandomProjection()
-        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...], n_components=n_dims)
+        transformer = random_projection.GaussianRandomProjection(n_components=n_dims)
+        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...])
 
     print 'projection done, new dimension is %d' %len(f['data_set/data_set'][0])
 
