@@ -134,4 +134,4 @@ def generate_real_dataset_binning_cnn():
 
     f.close()
 
-    generate_train_val_test_set("./usarray_data_unscaled_real_cnn.hdf5", "usarray_data_scaled_train_val_test_real_cnn.hdf5")
+    generate_train_val_test_set("./usarray_data_unscaled_binning_real_cnn.hdf5", "usarray_data_unscaled_train_val_test_binning_real_cnn.hdf5")

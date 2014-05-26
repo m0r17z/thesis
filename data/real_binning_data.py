@@ -3,6 +3,7 @@ import numpy as np
 import h5py as h5
 from utils import determine_label
 from generate_datasets import generate_train_val_test_set
+from sklearn.preprocessing import scale
 
 def generate_real_dataset_binning():
     ################################################ LOADING AND CLEANING THE DATA #########################################
@@ -90,7 +91,7 @@ def generate_real_dataset_binning():
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("./usarray_data_unscaled_real.hdf5", "w")
+    f = h5.File("./usarray_data_real.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -130,6 +131,8 @@ def generate_real_dataset_binning():
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
+    f['data_set/data_set'] = scale(f['data_set/data_set'])
+
     f.close()
 
-    generate_train_val_test_set("./usarray_data_unscaled_real.hdf5", "usarray_data_scaled_train_val_test_real.hdf5")
+    generate_train_val_test_set("./usarray_data_binning_real.hdf5", "usarray_data_train_val_test_binning_real.hdf5")

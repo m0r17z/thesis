@@ -1,7 +1,7 @@
 
 import h5py as h5
 import numpy as np
-from sklearn.preprocessing import scale
+
 
 
 def generate_train_val_test_set(raw_data, final_data):
@@ -9,7 +9,7 @@ def generate_train_val_test_set(raw_data, final_data):
 
     file = h5.File(raw_data, "r")
 
-    samples = scale(file['data_set/data_set'][...])
+    samples = file['data_set/data_set'][...]
     labels = file['labels/real_labels'][...]
     annotations = file['annotations/annotations'][...]
 
