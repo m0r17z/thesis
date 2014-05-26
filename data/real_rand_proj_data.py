@@ -138,12 +138,12 @@ def generate_real_dataset_binning(sparse=False, eps=0.1):
 
     if sparse:
         transformer = random_projection.SparseRandomProjection()
-        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...])
+        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...], n_components=n_dims)
     else:
         transformer = random_projection.GaussianRandomProjection()
-        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...])
+        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...], n_components=n_dims)
 
-    print 'projection done'
+    print 'projection done, new dimension is %d' %len(f['data_set/data_set'][0])
 
     f.close()
 
