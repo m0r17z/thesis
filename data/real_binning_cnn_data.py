@@ -90,7 +90,7 @@ def generate_real_dataset_binning_cnn():
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("./usarray_data_unscaled_real_cnn.hdf5", "w")
+    f = h5.File("./usarray_data_real_cnn.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),z_range, x_range*y_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -134,4 +134,4 @@ def generate_real_dataset_binning_cnn():
 
     f.close()
 
-    generate_train_val_test_set("./usarray_data_unscaled_binning_real_cnn.hdf5", "usarray_data_unscaled_train_val_test_binning_real_cnn.hdf5")
+    generate_train_val_test_set("./usarray_data_binning_real_cnn.hdf5", "usarray_data_train_val_test_binning_real_cnn.hdf5")
