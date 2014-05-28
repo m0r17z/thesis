@@ -10,6 +10,7 @@ import gzip
 import cPickle
 import theano.tensor as T
 import h5py as h5
+import numpy as np
 
 from alchemie import contrib
 from breze.learn.data import one_hot
@@ -36,9 +37,20 @@ def evaluate_mlp(args):
 
                 result = f_n_wrong(TX,TZ)
                 result_s = 'model achieved %f%% classification error on the test set' %(result)
+
+                indices = np.random.rand(50) * len(TX)
+                for i in np.arange(50):
+                    index = indices[i]
+                    prediction = trainer.model.predict(TX[index])
+                    if np.argmax(prediction) == np.argmax(TZ[index]):
+                        result_s += '\nprediction for sample at position %d is %s, correct' %(index, str(prediction))
+                    else:
+                        result_s += '\nprediction for sample at position %d is %s, wrong' %(index, str(prediction))
+
                 print result_s
                 with open(os.path.join(dir,'eval_mlp_real_result.txt'),'w') as f:
                     f.write(result_s)
+
     return 0
 
 
