@@ -38,7 +38,7 @@ def evaluate_mlp(args):
                 result = f_n_wrong(TX,TZ)
                 result_s = 'model achieved %f%% classification error on the test set' %(result)
 
-                indices = np.random.rand(50) * len(TX)
+                indices = np.random.rand(50) * 270000
                 for i in np.arange(50):
                     index = indices[i]
                     prediction = trainer.model.predict(TX[index])
