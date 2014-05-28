@@ -86,11 +86,10 @@ def generate_real_dataset_binning(sparse=False, eps=0.1):
     min_x_cm = 70
     max_y_cm = 250
     max_z_cm = 200
-    nr_z_intervals = 2
 
-    x_range = max_x_cm/bin_cm - min_x_cm/bin_cm
-    y_range = max_y_cm*2/bin_cm
-    z_range = nr_z_intervals
+    x_range = max_x_cm / bin_cm - min_x_cm / bin_cm
+    y_range = max_y_cm * 2 / bin_cm
+    z_range = max_z_cm / bin_cm
 
     f = h5.File("./usarray_data_rp_real.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
@@ -106,7 +105,7 @@ def generate_real_dataset_binning(sparse=False, eps=0.1):
         for qpoint in qpoint_list:
             x = int(float(qpoint[0])*100) / bin_cm
             y = (int(float(qpoint[1])*100) + max_y_cm) / bin_cm
-            z = int(float(qpoint[2])*100) > (max_z_cm / nr_z_intervals)
+            z = int(float(qpoint[2])*100) / bin_cm
             if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0:
                 continue
             pow = float(qpoint[4])
