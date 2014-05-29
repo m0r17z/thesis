@@ -14,7 +14,7 @@ from breze.learn.data import one_hot
 
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
-    module = os.path.join(train_folder, 'mlp_on_us_bin.py')
+    module = os.path.join(train_folder, 'mlp_2h_bin.py')
     script = '/nthome/maugust/git/alchemie/scripts/alc.py'
     runner = 'python %s run %s' % (script, module)
 
@@ -56,7 +56,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('../../usarray_data_scaled_train_val_bin.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/usarray_data_scaled_train_val_bin.hdf5','r')
    X = data['trainig_set/train_set'][...][:330000]
    Z = data['trainig_labels/bin_train_labels'][...][:330000]
    VX = data['validation_set/val_set'][...][:140000]

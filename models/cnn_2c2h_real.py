@@ -3,7 +3,7 @@ import signal
 import os
 import h5py as h5
 
-from breze.learn.mlp import Mlp
+from breze.learn.cnn import Cnn
 from breze.learn.trainer.trainer import Trainer
 from breze.learn.trainer.report import KeyPrinter, JsonPrinter
 import climin.initialize
@@ -12,7 +12,7 @@ from breze.learn.data import one_hot
 
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
-    module = os.path.join(train_folder, 'mlp_on_us_real.py')
+    module = os.path.join(train_folder, 'cnn_2c2h_real.py')
     script = '/nthome/maugust/git/alchemie/scripts/alc.py'
     runner = 'python %s run %s' % (script, module)
 
@@ -20,7 +20,7 @@ def preamble(i):
     pre += '#SUBMIT: gpu=no\n'
 
     minutes_before_3_hour = 15
-    slurm_preamble = '#SBATCH -J MLP_2hiddens_on_us_real_%d\n' % (i)
+    slurm_preamble = '#SBATCH -J CNN_2convs_on_us_real_%d\n' % (i)
     slurm_preamble += '#SBATCH --mem=20000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
     slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
@@ -42,8 +42,12 @@ def draw_pars(n=1):
             return 'rmsprop', sample
 
     grid = {
-        'n_hidden': [[200,200],[500,500],[1000,1000],[700,700],[100,100],[50,50]],
-        'hidden_transfers': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
+        'n_hidden_full': [[200,200],[500,500],[1000,1000],[700,700],[100,100],[50,50]],
+        'n_hidden_conv': [[16,32],[32,64],[64,128],[16,64],[32,128],[16,128]],
+        'hidden_transfers_full': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
+        'hidden_transfers_conv': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
+        'filter_shapes': [[[5,5],[5,5]],[[6,6],[6,6]],[[6,6],[5,5]],[[5,5],[4,4]],[[7,7],[6,6]]],
+        'pool_size': [(2,2),(4,4)],
         'par_std': [1.5, 1, 1e-1, 1e-2,1e-3,1e-4,1e-5],
 	    'batch_size': [10000,5000,2000,1000],
         'optimizer': OptimizerDistribution(),
@@ -55,7 +59,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('../../usarray_data_scaled_train_val_test_real.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/usarray_data_scaled_train_val_test_real_cnn.hdf5','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
@@ -81,15 +85,29 @@ def new_trainer(pars, data):
     input_size = 3700
     # 13 as there are 12 fields
     output_size = 13
+    n_channels = 2
+    bin_cm = 10
+    max_x_cm = 440
+    min_x_cm = 70
+    max_y_cm = 250
+    x_range = max_x_cm/bin_cm - min_x_cm/bin_cm
+    y_range = max_y_cm*2/bin_cm
+    im_width = y_range
+    im_height = x_range
     batch_size = pars['batch_size']
-    m = Mlp(input_size, pars['n_hidden'], output_size, 
-            hidden_transfers=pars['hidden_transfers'], out_transfer='softmax',
-            loss='cat_ce', batch_size = batch_size,
+    m = Cnn(input_size, pars['n_hidden_conv'], pars['n_hidden_full'], output_size,
+            pars['hidden_transfers_conv'], hidden_transfers=pars['hidden_transfers_full'],
+            out_transfer='softmax', loss='cat_ce',image_height=im_height, image_width=im_width, n_image_channel=n_channels,
+            filter_shapes=pars['filter_shapes'], pool_size=pars['pool_size'], batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
-    weight_decay = ((m.parameters.in_to_hidden**2).sum()
-                    + (m.parameters.hidden_to_hidden_0**2).sum()
+    sampled_weights = m.sample_conv_weights(seed=31337)
+    for layer, init in sampled_weights:
+        m.parameters[layer] = init
+
+    weight_decay = ((m.parameters.hidden_conv_to_hidden_full**2).sum()
+                    + (m.parameters.hidden_full_to_hidden_full_0**2).sum()
                     + (m.parameters.hidden_to_out**2).sum())
     weight_decay /= m.exprs['inpt'].shape[0]
     m.exprs['true_loss'] = m.exprs['loss']
