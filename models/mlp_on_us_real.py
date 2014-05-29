@@ -98,7 +98,7 @@ def new_trainer(pars, data):
 
     # length of dataset should be 270000 (for no time-integration)
     n_report = 270000/batch_size
-    max_iter = n_report * 5000
+    max_iter = n_report * 200
 
     interrupt = climin.stops.OnSignal()
     print dir(climin.stops)
