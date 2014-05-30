@@ -5,7 +5,7 @@ from utils import determine_label
 from generate_datasets import generate_train_val_test_set
 from sklearn.preprocessing import scale
 
-def generate_real_dataset_binning():
+def generate_real_dataset_binning(center=True):
     ################################################ LOADING AND CLEANING THE DATA #########################################
     samples = open('./samples.txt')
     labels = open('./labels.txt')
@@ -131,7 +131,7 @@ def generate_real_dataset_binning():
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
-    f['data_set/data_set'] = scale(f['data_set/data_set'])
+    f['data_set/data_set'] = scale(f['data_set/data_set'], with_mean=center)
 
     f.close()
 
