@@ -18,9 +18,9 @@ import docopt
 
 def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open(os.path.join(data, 'samples.txt'))
-    labels = open(os.path.join(data, './labels.txt'))
-    annotations = open(os.path.join(data, './annotations.txt'))
+    samples = open(os.path.join(data_path, 'samples.txt'))
+    labels = open(os.path.join(data_path, './labels.txt'))
+    annotations = open(os.path.join(data_path, './annotations.txt'))
 
     bad_samples = []
     real_labels = []
