@@ -107,7 +107,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     n_dims = johnson_lindenstrauss_min_dim(len(qpoint_lists),eps)
     print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
 
-    f_path = os.path.join(data_path,'rp_real.hdf5')
+    f_path = os.path.join(data_path,'rp_real_sparse.hdf5') if sparse else f_path = os.path.join(data_path,'rp_real_gauss.hdf5')
     print f_path
     f = h5.File(f_path, "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists), n_dims), dtype='f')
