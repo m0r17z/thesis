@@ -16,7 +16,7 @@ from sklearn import random_projection
 import docopt
 
 
-def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
+def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     ################################################ LOADING AND CLEANING THE DATA #########################################
     samples = open(os.path.join(data_path, 'samples.txt'))
     labels = open(os.path.join(data_path, './labels.txt'))
@@ -122,7 +122,7 @@ def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
         print 'performing projection with gaussian matrix'
 
     # this is not the way it's supposed to be done BUT the proper training set doesn't fit into the memory
-    transformer.components_ = transformer._make_random_matrix(n_dims,x_range*y_range*z_range)
+    transformer.components_ = transformer._make_random_matrix(n_dims, x_range*y_range*z_range)
     last_per = -1
 
     for ind, qpoint_list in enumerate(qpoint_lists):
@@ -142,7 +142,7 @@ def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
             grid[x-min_x_cm/bin_cm][y][z] = pow
             ps += 1
 
-        f['data_set/data_set'][ind] = transformer.transform(grid.flatten())
+        f['data_set/data_set'][ind] = transformer.transform(np.reshape(grid,(1,-1)))
         f['labels/real_labels'][ind] = real_labels[ind]
         f['annotations/annotations'][ind] = annotation_list[ind]
         curr_percent = int(float(ind) / len(qpoint_lists) * 100)
@@ -171,4 +171,4 @@ if __name__ == '__main__':
     eps = float(args['<eps>'])
     sparse = args['<sparse>']
     path = args['<path>']
-    generate_real_dataset_binning(path, sparse, eps)
+    generate_real_dataset_rp(path, sparse, eps)
