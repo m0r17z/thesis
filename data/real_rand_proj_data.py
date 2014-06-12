@@ -132,7 +132,7 @@ def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
             x = int(float(qpoint[0])*100) / bin_cm
             y = (int(float(qpoint[1])*100) + max_y_cm) / bin_cm
             z = int(float(qpoint[2])*100) / bin_cm
-            if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0:
+            if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0 or z > max_z_cm or z < 0:
                 continue
             pow = float(qpoint[4])
             if grid[x-min_x_cm/bin_cm][y][z] != 0:
