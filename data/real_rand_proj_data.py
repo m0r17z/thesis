@@ -103,6 +103,10 @@ def generate_real_dataset_binning(data, sparse=False, eps=0.1):
 
     print 'length of data in original space: %d' %(x_range*y_range*z_range)
 
+    # compute a conservative estimate of the number of latent dimensions required to guarantuee the given epsilons
+    n_dims = johnson_lindenstrauss_min_dim(len(qpoint_lists),eps)
+    print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
+
     f = h5.File(os.path.join(data,"usarray_data_rp_real.hdf5"), "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
@@ -142,10 +146,6 @@ def generate_real_dataset_binning(data, sparse=False, eps=0.1):
     print 'dimensionality of the samples: ' +str(len(f['data_set/data_set'][0]))
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
-
-    # compute a conservative estimate of the number of latent dimensions required to guarantuee the given epsilons
-    n_dims = johnson_lindenstrauss_min_dim(len(qpoint_lists),eps)
-    print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
 
     if sparse:
         print 'performing projection with sparse matrix'
