@@ -122,7 +122,7 @@ def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
         print 'performing projection with gaussian matrix'
 
     # this is not the way it's supposed to be done BUT the proper training set doesn't fit into the memory
-    transformer = transformer._make_random_matrix(n_dims,x_range*y_range*z_range)
+    transformer.components_ = transformer._make_random_matrix(n_dims,x_range*y_range*z_range)
     last_per = -1
 
     for ind, qpoint_list in enumerate(qpoint_lists):
