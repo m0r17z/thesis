@@ -169,4 +169,4 @@ if __name__ == '__main__':
     eps = float(args['<eps>'])
     sparse = args['<sparse>']
     path = args['<path>']
-    generate_real_dataset_binning(path, sparse, args)
+    generate_real_dataset_binning(path, sparse, eps)
