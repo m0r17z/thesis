@@ -16,7 +16,7 @@ from sklearn import random_projection
 import docopt
 
 
-def generate_real_dataset_binning(data, sparse=False, eps=0.1):
+def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
     ################################################ LOADING AND CLEANING THE DATA #########################################
     samples = open(os.path.join(data, 'samples.txt'))
     labels = open(os.path.join(data, './labels.txt'))
@@ -107,7 +107,9 @@ def generate_real_dataset_binning(data, sparse=False, eps=0.1):
     n_dims = johnson_lindenstrauss_min_dim(len(qpoint_lists),eps)
     print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
 
-    f = h5.File(os.path.join(data,"usarray_data_rp_real.hdf5"), "w")
+    f_path = os.path.join(data_path,'rp_real.hdf5')
+    print f_path
+    f = h5.File(f_path, "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists), n_dims), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
