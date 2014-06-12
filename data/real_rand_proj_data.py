@@ -108,11 +108,19 @@ def generate_real_dataset_binning(data, sparse=False, eps=0.1):
     print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
 
     f = h5.File(os.path.join(data,"usarray_data_rp_real.hdf5"), "w")
-    f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
+    f.create_dataset('data_set/data_set', (len(qpoint_lists), n_dims), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
 
+    transformer = random_projection.SparseRandomProjection(n_components=n_dims) if sparse else random_projection.GaussianRandomProjection(n_components=n_dims)
+    if sparse:
+        print 'performing projection with sparse matrix'
+    else:
+        print 'performing projection with gaussian matrix'
+
+    train_matrix = np.zeroes((len(qpoint_lists),x_range*y_range*z_range), dtype=np.int8)
+    transformer.fit(train_matrix)
     last_per = -1
 
     for ind, qpoint_list in enumerate(qpoint_lists):
@@ -132,7 +140,7 @@ def generate_real_dataset_binning(data, sparse=False, eps=0.1):
             grid[x-min_x_cm/bin_cm][y][z] = pow
             ps += 1
 
-        f['data_set/data_set'][ind] = grid.flatten()
+        f['data_set/data_set'][ind] = transformer.transform(grid.flatten())
         f['labels/real_labels'][ind] = real_labels[ind]
         f['annotations/annotations'][ind] = annotation_list[ind]
         curr_percent = int(float(ind) / len(qpoint_lists) * 100)
@@ -147,14 +155,6 @@ def generate_real_dataset_binning(data, sparse=False, eps=0.1):
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
-    if sparse:
-        print 'performing projection with sparse matrix'
-        transformer = random_projection.SparseRandomProjection(n_components=n_dims)
-        f['data_set/data_set'] = transformer.fit_transform(f['data_set/data_set'])
-    else:
-        print 'performing projection with gaussian matrix'
-        transformer = random_projection.GaussianRandomProjection(n_components=n_dims)
-        f['data_set/data_set'] = transformer.fit_transform(f['data_set/data_set'])
 
     print 'projection done, new dimension is %d' %len(f['data_set/data_set'][0])
 
