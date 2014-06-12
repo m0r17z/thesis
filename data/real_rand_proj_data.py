@@ -1,16 +1,26 @@
 
+"""Usage:
+    real_rand_proj_data.py <path> <sparse> <eps>
+
+"""
+
+
 import numpy as np
 import h5py as h5
+import os
 from utils import determine_label
 from generate_datasets import generate_train_val_test_set
 from sklearn.random_projection import johnson_lindenstrauss_min_dim
 from sklearn import random_projection
 
-def generate_real_dataset_binning(sparse=False, eps=0.1):
+import docopt
+
+
+def generate_real_dataset_binning(data, sparse=False, eps=0.1):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('./samples.txt')
-    labels = open('./labels.txt')
-    annotations = open('./annotations.txt')
+    samples = open(os.path.join(data, 'samples.txt'))
+    labels = open(os.path.join(data, './labels.txt'))
+    annotations = open(os.path.join(data, './annotations.txt'))
 
     bad_samples = []
     real_labels = []
@@ -91,7 +101,9 @@ def generate_real_dataset_binning(sparse=False, eps=0.1):
     y_range = max_y_cm * 2 / bin_cm
     z_range = max_z_cm / bin_cm
 
-    f = h5.File("./usarray_data_rp_real.hdf5", "w")
+    print 'length of data in original space: %d' %(x_range*y_range*z_range)
+
+    f = h5.File(os.path.join(data,"usarray_data_rp_real.hdf5"), "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -136,14 +148,25 @@ def generate_real_dataset_binning(sparse=False, eps=0.1):
     print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
 
     if sparse:
+        print 'performing projection with sparse matrix'
         transformer = random_projection.SparseRandomProjection(n_components=n_dims)
-        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...])
+        f['data_set/data_set'] = transformer.fit_transform(f['data_set/data_set'])
     else:
+        print 'performing projection with gaussian matrix'
         transformer = random_projection.GaussianRandomProjection(n_components=n_dims)
-        f['data_set/data_set'][...] = transformer.fit_transform(f['data_set/data_set'][...])
+        f['data_set/data_set'] = transformer.fit_transform(f['data_set/data_set'])
 
     print 'projection done, new dimension is %d' %len(f['data_set/data_set'][0])
 
     f.close()
 
-    generate_train_val_test_set("./usarray_data_rp_real.hdf5", "usarray_data_train_val_test_rp_real.hdf5")
+    generate_train_val_test_set(os.path.join(data,"usarray_data_rp_real.hdf5"), os.path.join(data,"usarray_data_train_val_test_rp_real.hdf5"))
+
+
+if __name__ == '__main__':
+    args = docopt.docopt(__doc__)
+    print args
+    eps = float(args['<eps>'])
+    sparse = args['<sparse>']
+    path = args['<path>']
+    generate_real_dataset_binning(path, sparse, args)
