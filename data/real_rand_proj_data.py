@@ -121,7 +121,7 @@ def generate_real_dataset_binning(data_path, sparse=False, eps=0.1):
     else:
         print 'performing projection with gaussian matrix'
 
-    train_matrix = np.zeroes((len(qpoint_lists),x_range*y_range*z_range), dtype=np.int8)
+    train_matrix = np.zeros((len(qpoint_lists),x_range*y_range*z_range), dtype=np.int8)
     transformer.fit(train_matrix)
     last_per = -1
 
