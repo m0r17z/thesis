@@ -21,6 +21,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     samples = open(os.path.join(data_path, 'samples.txt'))
     labels = open(os.path.join(data_path, './labels.txt'))
     annotations = open(os.path.join(data_path, './annotations.txt'))
+    out_f = open(os.path.join(data_path,'rp_out'),'w')
 
     bad_samples = []
     real_labels = []
@@ -36,9 +37,10 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     for data in annotations:
         annotation_list = data.split(';')
 
-    print 'found %i qpoint lists.' % len(qpoint_lists)
-    print 'found %i labels.' % len(label_list)
-    print 'found %i annotations.' % len(annotation_list)
+    out_s = 'found %i qpoint lists.' % len(qpoint_lists) + 'found %i labels.' % len(label_list) + 'found %i annotations.' % len(annotation_list)
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
 
     for list_ind in np.arange(len(qpoint_lists)):
         bad = False
@@ -77,10 +79,13 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
         annotation_list.pop(real_ind)
         ind += 1
 
-    print str(len(qpoint_lists)) + ' samples remain after purging.'
-    print str(len(real_labels)) + ' labels remain after purging.'
-    print str(len(annotation_list)) + ' annotations remain after purging.'
-    print 'percentages of the labels are %s' %str(label_count/len(qpoint_lists))
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = str(len(qpoint_lists)) + ' samples remain after purging.' + str(len(real_labels)) + ' labels remain after purging.'\
+            + str(len(annotation_list)) + ' annotations remain after purging.' + 'percentages of the labels are %s' %str(label_count/len(qpoint_lists))
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
+
     samples.close()
     labels.close()
     annotations.close()
@@ -101,11 +106,20 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     y_range = max_y_cm * 2 / bin_cm
     z_range = max_z_cm / bin_cm
 
-    print 'length of data in original space: %d' %(x_range*y_range*z_range)
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = 'length of data in original space: %d' %(x_range*y_range*z_range)
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
 
     # compute a conservative estimate of the number of latent dimensions required to guarantuee the given epsilons
     n_dims = johnson_lindenstrauss_min_dim(len(qpoint_lists),eps)
-    print 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
+
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
 
     f_path = os.path.join(data_path,'rp_real_sparse.hdf5') if sparse else f_path = os.path.join(data_path,'rp_real_gauss.hdf5')
     print f_path
@@ -148,7 +162,11 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
         curr_percent = int(float(ind) / len(qpoint_lists) * 100)
         if last_per != curr_percent:
             last_per = curr_percent
-            print 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
+            out_f = open(os.path.join(data_path,'rp_out'),'a')
+            out_s = 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
+            print out_s
+            out_f.write(out_s)
+            out_f.close()
 
     print 'done with projecting onto the grid (without binning)'
     print 'percentage of point collision: ' + str(float(pcol)/ps)
@@ -157,13 +175,18 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
-
-    print 'projection done, new dimension is %d' %len(f['data_set/data_set'][0])
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = 'projection done, new dimension is %d' %len(f['data_set/data_set'][0])
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
 
     f.close()
 
-    generate_train_val_test_set(os.path.join(data,"usarray_data_rp_real.hdf5"), os.path.join(data,"usarray_data_train_val_test_rp_real.hdf5"))
-
+    if sparse:
+        generate_train_val_test_set(os.path.join(data_path,"rp_real_sparse.hdf5"), os.path.join(data_path,"train_val_test_rp_real_sparse.hdf5"))
+    else:
+        generate_train_val_test_set(os.path.join(data_path,"rp_real_gauss.hdf5"), os.path.join(data_path,"train_val_test_rp_real_gauss.hdf5"))
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)

@@ -55,7 +55,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('/nthome/maugust/thesis/rp_real_sparse.hdf','r')
+   data = h5.File('/nthome/maugust/thesis/train_val_test_rp_real_sparse.hdf','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
@@ -77,7 +77,7 @@ def make_data_dict(trainer,data):
 
 def new_trainer(pars, data):
 
-    # 3700 for binning
+    # 3004 for random projections
     input_size = 3004
     # 13 as there are 12 fields
     output_size = 13
