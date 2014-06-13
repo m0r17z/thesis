@@ -37,7 +37,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     for data in annotations:
         annotation_list = data.split(';')
 
-    out_s = 'found %i qpoint lists.' % len(qpoint_lists) + 'found %i labels.' % len(label_list) + 'found %i annotations.' % len(annotation_list)
+    out_s = 'found %i qpoint lists.\n' % len(qpoint_lists) + 'found %i labels.\n' % len(label_list) + 'found %i annotations.\n\n' % len(annotation_list)
     print out_s
     out_f.write(out_s)
     out_f.close()
@@ -80,8 +80,8 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
         ind += 1
 
     out_f = open(os.path.join(data_path,'rp_out'),'a')
-    out_s = str(len(qpoint_lists)) + ' samples remain after purging.' + str(len(real_labels)) + ' labels remain after purging.'\
-            + str(len(annotation_list)) + ' annotations remain after purging.' + 'percentages of the labels are %s' %str(label_count/len(qpoint_lists))
+    out_s = str(len(qpoint_lists)) + ' samples remain after purging.\n' + str(len(real_labels)) + ' labels remain after purging.\n'\
+            + str(len(annotation_list)) + ' annotations remain after purging.\n' + 'percentages of the labels are %s\n\n' %str(label_count/len(qpoint_lists))
     print out_s
     out_f.write(out_s)
     out_f.close()
@@ -107,7 +107,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     z_range = max_z_cm / bin_cm
 
     out_f = open(os.path.join(data_path,'rp_out'),'a')
-    out_s = 'length of data in original space: %d' %(x_range*y_range*z_range)
+    out_s = 'length of data in original space: %d\n\n' %(x_range*y_range*z_range)
     print out_s
     out_f.write(out_s)
     out_f.close()
@@ -116,12 +116,12 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     n_dims = johnson_lindenstrauss_min_dim(len(qpoint_lists),eps)
 
     out_f = open(os.path.join(data_path,'rp_out'),'a')
-    out_s = 'number of latent dimensions needed to guarantee %f epsilon is %f' %(eps, n_dims)
+    out_s = 'number of latent dimensions needed to guarantee %f epsilon is %f\n\n' %(eps, n_dims)
     print out_s
     out_f.write(out_s)
     out_f.close()
 
-    f_path = os.path.join(data_path,'rp_real_sparse.hdf5') if sparse else f_path = os.path.join(data_path,'rp_real_gauss.hdf5')
+    f_path = os.path.join(data_path,'rp_real_sparse.hdf5') if sparse else os.path.join(data_path,'rp_real_gauss.hdf5')
     print f_path
     f = h5.File(f_path, "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists), n_dims), dtype='f')
@@ -176,7 +176,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
     out_f = open(os.path.join(data_path,'rp_out'),'a')
-    out_s = 'projection done, new dimension is %d' %len(f['data_set/data_set'][0])
+    out_s = 'projection done, new dimension is %d\n\n' %len(f['data_set/data_set'][0])
     print out_s
     out_f.write(out_s)
     out_f.close()
