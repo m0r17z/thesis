@@ -10,16 +10,10 @@ def visualize_output(output):
 
     ax.set_title('Probabilities for the Areas')
 
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
     ax.imshow(output, cmap=plt.cm.gray, interpolation='nearest')
-    ax.spines['left'].set_position(('outward', 10))
-    ax.spines['bottom'].set_position(('outward', 10))
-
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-
-    ax.yaxis.set_ticks_position('left')
-    ax.xaxis.set_ticks_position('bottom')
-
+    
     return fig, ax
 
 def compare_prediciton_target(prediction, target):
