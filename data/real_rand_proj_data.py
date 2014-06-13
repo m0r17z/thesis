@@ -163,7 +163,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
         if last_per != curr_percent:
             last_per = curr_percent
             out_f = open(os.path.join(data_path,'rp_out'),'a')
-            out_s = 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
+            out_s = 'have now looked at %i%% of the data.\n' % int(float(ind) / len(qpoint_lists) * 100)
             print out_s
             out_f.write(out_s)
             out_f.close()
