@@ -3,12 +3,13 @@ import numpy as np
 import h5py as h5
 from utils import determine_label
 from generate_datasets import generate_train_val_test_set
+import os
 
-def generate_real_dataset_binning_cnn():
+def generate_real_dataset_binning_cnn(data_path):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('./samples.txt')
-    labels = open('./labels.txt')
-    annotations = open('./annotations.txt')
+    samples = open(os.join.path(data_path,'samples.txt'))
+    labels = open(os.join.path(data_path,'labels.txt'))
+    annotations = open(os.join.path(data_path,'annotations.txt'))
 
     bad_samples = []
     real_labels = []
@@ -90,7 +91,7 @@ def generate_real_dataset_binning_cnn():
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("./usarray_data_real_cnn.hdf5", "w")
+    f = h5.File(os.join.path(data_path,"binning_real_cnn.hdf5"), "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),z_range, x_range*y_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -134,4 +135,8 @@ def generate_real_dataset_binning_cnn():
 
     f.close()
 
-    generate_train_val_test_set("./usarray_data_binning_real_cnn.hdf5", "usarray_data_train_val_test_binning_real_cnn.hdf5")
+    generate_train_val_test_set(os.path.join(data_path,"binning_real_cnn.hdf5"), os.path.join(data_path,"train_val_test_binning_real_cnn.hdf5"))
+
+
+if __name__ == '__main__':
+    generate_real_dataset_binning_cnn('/nthome/maugust/thesis')
