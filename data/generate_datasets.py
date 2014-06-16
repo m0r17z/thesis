@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-def generate_train_val_test_set(raw_data, final_data):
+def generate_train_val_test_set(raw_data, final_data, cnn=False):
     ############################################### SCALING DATA AND GENERATING TRAINING AND VALIDATION SET ######################################
 
     file = h5.File(raw_data, "r")
@@ -59,19 +59,23 @@ def generate_train_val_test_set(raw_data, final_data):
     train_len = len(train_set) - len(train_set)%10000
     val_len = len(val_set) - len(val_set)%10000
     test_len = len(test_set) - len(test_set)%10000
-    sample_shape = np.array(train_set[0]).shape
-    train_shape = [train_len].append(sample_shape)
-    val_shape = [val_len].append(sample_shape)
-    test_shape = [test_len].append(sample_shape)
 
     print 'length of training set after pruning: %i' %train_len
     print 'length of validation set after pruning: %i' %val_len
     print 'length of test set after pruning: %i' %test_len
 
     f = h5.File(final_data, "w")
-    f.create_dataset('trainig_set/train_set', train_shape, dtype='f')
-    f.create_dataset('validation_set/val_set', val_shape, dtype='f')
-    f.create_dataset('test_set/test_set', test_shape, dtype='f')
+    if cnn:
+        n_channels = len(train_set[0])
+        len_image = len(train_set[0][0])
+        f.create_dataset('trainig_set/train_set', (train_len,n_channels,len_image), dtype='f')
+        f.create_dataset('validation_set/val_set', (val_len,n_channels,len_image), dtype='f')
+        f.create_dataset('test_set/test_set', (test_len,n_channels,len_image), dtype='f')
+    else:
+        len_vec = len(train_set[0])
+        f.create_dataset('trainig_set/train_set', (train_len,len_vec), dtype='f')
+        f.create_dataset('validation_set/val_set', (val_len,len_vec), dtype='f')
+        f.create_dataset('test_set/test_set', (test_len,len_vec), dtype='f')
     f.create_dataset('trainig_labels/real_train_labels', (train_len,), dtype='i')
     f.create_dataset('validation_labels/real_val_labels', (val_len,), dtype='i')
     f.create_dataset('test_labels/real_test_labels', (test_len,), dtype='i')
