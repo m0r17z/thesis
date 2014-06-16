@@ -92,7 +92,7 @@ def generate_real_dataset_binning_cnn(data_path):
     z_range = nr_z_intervals
 
     f = h5.File(os.path.join(data_path,"binning_real_cnn.hdf5"), "w")
-    f.create_dataset('data_set/data_set', (len(qpoint_lists),z_range, x_range*y_range), dtype='f')
+    f.create_dataset('data_set/data_set', (len(qpoint_lists),z_range*x_range*y_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
@@ -118,8 +118,8 @@ def generate_real_dataset_binning_cnn(data_path):
             ps += 1
 
         # unroll the grid into a vector?!
-        for z_val in np.arange(z_range):
-            f['data_set/data_set'][ind][z_val] = grid[z_val].flatten()
+
+        f['data_set/data_set'][ind] = grid.flatten()
         f['labels/real_labels'][ind] = real_labels[ind]
         f['annotations/annotations'][ind] = annotation_list[ind]
         curr_percent = int(float(ind) / len(qpoint_lists) * 100)

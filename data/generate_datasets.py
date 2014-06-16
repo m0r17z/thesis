@@ -4,7 +4,7 @@ import numpy as np
 
 
 
-def generate_train_val_test_set(raw_data, final_data, cnn=False):
+def generate_train_val_test_set(raw_data, final_data):
     ############################################### SCALING DATA AND GENERATING TRAINING AND VALIDATION SET ######################################
 
     file = h5.File(raw_data, "r")
@@ -65,17 +65,10 @@ def generate_train_val_test_set(raw_data, final_data, cnn=False):
     print 'length of test set after pruning: %i' %test_len
 
     f = h5.File(final_data, "w")
-    if cnn:
-        n_channels = len(train_set[0])
-        len_image = len(train_set[0][0])
-        f.create_dataset('trainig_set/train_set', (train_len,n_channels,len_image), dtype='f')
-        f.create_dataset('validation_set/val_set', (val_len,n_channels,len_image), dtype='f')
-        f.create_dataset('test_set/test_set', (test_len,n_channels,len_image), dtype='f')
-    else:
-        len_vec = len(train_set[0])
-        f.create_dataset('trainig_set/train_set', (train_len,len_vec), dtype='f')
-        f.create_dataset('validation_set/val_set', (val_len,len_vec), dtype='f')
-        f.create_dataset('test_set/test_set', (test_len,len_vec), dtype='f')
+    len_vec = len(train_set[0])
+    f.create_dataset('trainig_set/train_set', (train_len,len_vec), dtype='f')
+    f.create_dataset('validation_set/val_set', (val_len,len_vec), dtype='f')
+    f.create_dataset('test_set/test_set', (test_len,len_vec), dtype='f')
     f.create_dataset('trainig_labels/real_train_labels', (train_len,), dtype='i')
     f.create_dataset('validation_labels/real_val_labels', (val_len,), dtype='i')
     f.create_dataset('test_labels/real_test_labels', (test_len,), dtype='i')
