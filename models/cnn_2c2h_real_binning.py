@@ -12,7 +12,7 @@ from breze.learn.data import one_hot
 
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
-    module = os.path.join(train_folder, 'cnn_2c2h_real.py')
+    module = os.path.join(train_folder, 'cnn_2c2h_real_binning.py')
     script = '/nthome/maugust/git/alchemie/scripts/alc.py'
     runner = 'python %s run %s' % (script, module)
 
@@ -20,8 +20,8 @@ def preamble(i):
     pre += '#SUBMIT: gpu=no\n'
 
     minutes_before_3_hour = 15
-    slurm_preamble = '#SBATCH -J CNN_2convs_on_us_real_%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=20000\n'
+    slurm_preamble = '#SBATCH -J CNN_2c2h_binning_real_%d\n' % (i)
+    slurm_preamble += '#SBATCH --mem=18000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
     slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
     return pre + slurm_preamble
@@ -33,8 +33,8 @@ def draw_pars(n=1):
         def rvs(self):
             grid = {
                 'step_rate': [0.0001, 0.0005, 0.005,0.001,0.00001,0.00005],
-                'momentum': [0.99, 0.995,0.9,0.95],
-                'decay': [0.9, 0.95,0.99],
+                'momentum': [0.8, 0.99, 0.995,0.9,0.95],
+                'decay': [0.8,0.9, 0.95,0.99],
             }
 
             sample = list(ParameterSampler(grid, n_iter=1))[0]
@@ -44,10 +44,10 @@ def draw_pars(n=1):
     grid = {
         'n_hidden_full': [[200,200],[500,500],[1000,1000],[700,700],[100,100],[50,50]],
         'n_hidden_conv': [[16,32],[32,64],[64,128],[16,64],[32,128],[16,128]],
-        'hidden_transfers_full': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
-        'hidden_transfers_conv': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
-        'filter_shapes': [[[5,5],[5,5]],[[6,6],[6,6]],[[6,6],[5,5]],[[5,5],[4,4]],[[7,7],[6,6]]],
-        'pool_size': [(2,2),(4,4)],
+        'hidden_full_transfers': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
+        'hidden_conv_transfers': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
+        'filter_shapes': [[[5,5],[5,5]],[[6,6],[6,6]],[[6,6],[5,5]],[[5,5],[4,4]],[[7,7],[6,6]],[[8,8],[7,7]]],
+        'pool_size': [(2,2),(4,4),(8,8)],
         'par_std': [1.5, 1, 1e-1, 1e-2,1e-3,1e-4,1e-5],
 	    'batch_size': [10000,5000,2000,1000],
         'optimizer': OptimizerDistribution(),
@@ -59,7 +59,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('/nthome/maugust/thesis/usarray_data_scaled_train_val_test_real_cnn.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/train_val_test_binning_real_cnn.hdf5','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
@@ -96,15 +96,10 @@ def new_trainer(pars, data):
     im_height = x_range
     batch_size = pars['batch_size']
     m = Cnn(input_size, pars['n_hidden_conv'], pars['n_hidden_full'], output_size,
-            pars['hidden_transfers_conv'], hidden_transfers=pars['hidden_transfers_full'],
-            out_transfer='softmax', loss='cat_ce',image_height=im_height, image_width=im_width, n_image_channel=n_channels,
-            filter_shapes=pars['filter_shapes'], pool_size=pars['pool_size'], batch_size = batch_size,
-            optimizer=pars['optimizer'])
+            pars['hidden_conv_transfers'], pars['hidden_full_transfers'], 'softmax',
+            loss='cat_ce',image_height=im_height,image_width=im_width,n_image_channel=n_channels,pool_size=pars['pool_size'],filter_shapes=pars['filter_shapes'],
+            batch_size = batch_size, optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
-
-    sampled_weights = m.sample_conv_weights(seed=31337)
-    for layer, init in sampled_weights:
-        m.parameters[layer] = init
 
     weight_decay = ((m.parameters.hidden_conv_to_hidden_full**2).sum()
                     + (m.parameters.hidden_full_to_hidden_full_0**2).sum()
@@ -116,7 +111,7 @@ def new_trainer(pars, data):
 
     # length of dataset should be 270000 (for no time-integration)
     n_report = 270000/batch_size
-    max_iter = n_report * 200
+    max_iter = n_report * 100
 
     interrupt = climin.stops.OnSignal()
     print dir(climin.stops)
