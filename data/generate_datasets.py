@@ -60,9 +60,9 @@ def generate_train_val_test_set(raw_data, final_data):
     val_len = len(val_set) - len(val_set)%10000
     test_len = len(test_set) - len(test_set)%10000
     sample_shape = np.array(train_set[0]).shape
-    train_shape = [train_len].append(*sample_shape)
-    val_shape = [val_len].append(*sample_shape)
-    test_shape = [test_len].append(*sample_shape)
+    train_shape = [train_len].append(sample_shape)
+    val_shape = [val_len].append(sample_shape)
+    test_shape = [test_len].append(sample_shape)
 
     print 'length of training set after pruning: %i' %train_len
     print 'length of validation set after pruning: %i' %val_len
