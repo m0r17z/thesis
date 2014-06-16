@@ -96,7 +96,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
 
     # ASSUMPTION: relevant area is never less than 0.7 meters and more than 4.4 meters on the x-axis, 2.5 meters to both sides on the y-axis
     # and 2 meters on the z-axis away from the sensors
-    bin_cm = 1
+    bin_cm = 2
     max_x_cm = 440
     min_x_cm = 70
     max_y_cm = 250
@@ -146,7 +146,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
             x = int(float(qpoint[0])*100) / bin_cm
             y = (int(float(qpoint[1])*100) + max_y_cm) / bin_cm
             z = int(float(qpoint[2])*100) / bin_cm
-            if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0 or z > max_z_cm-1 or z < 0:
+            if x - min_x_cm/bin_cm < 0 or x - min_x_cm/bin_cm > x_range-1 or y > y_range-1 or y < 0 or z > z_range-1 or z < 0:
                 continue
             pow = float(qpoint[4])
             if grid[x-min_x_cm/bin_cm][y][z] != 0:
@@ -189,9 +189,9 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
         generate_train_val_test_set(os.path.join(data_path,"rp_real_gauss.hdf5"), os.path.join(data_path,"train_val_test_rp_real_gauss.hdf5"))
 
 if __name__ == '__main__':
-    args = docopt.docopt(__doc__)
-    print args
-    eps = float(args['<eps>'])
-    sparse = args['<sparse>']
-    path = args['<path>']
-    generate_real_dataset_rp(path, sparse, eps)
+    #args = docopt.docopt(__doc__)
+    #print args
+    #eps = float(args['<eps>'])
+    #sparse = args['<sparse>']
+    #path = args['<path>']
+    generate_real_dataset_rp('/nthome/maugust/thesis', True, 0.3)
