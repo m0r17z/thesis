@@ -96,7 +96,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
 
     # ASSUMPTION: relevant area is never less than 0.7 meters and more than 4.4 meters on the x-axis, 2.5 meters to both sides on the y-axis
     # and 2 meters on the z-axis away from the sensors
-    bin_cm = 2
+    bin_cm = 3
     max_x_cm = 440
     min_x_cm = 70
     max_y_cm = 250
