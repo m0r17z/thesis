@@ -21,9 +21,9 @@ def preamble(i):
 
     minutes_before_3_hour = 15
     slurm_preamble = '#SBATCH -J MLP_2hiddens_crafted_%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=2000\n'
+    slurm_preamble += '#SBATCH --mem=3000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
-    slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
+    slurm_preamble += '#SBATCH --exclude=cn-4,cn-5,cn-7,cn-8\n'
     return pre + slurm_preamble
 
 
@@ -33,8 +33,8 @@ def draw_pars(n=1):
         def rvs(self):
             grid = {
                 'step_rate': [0.0001, 0.0005, 0.005,0.001,0.00001,0.00005],
-                'momentum': [0.99, 0.995,0.9,0.95],
-                'decay': [0.9, 0.95,0.99],
+                'momentum': [0.99, 0.995,0.9,0.95,0],
+                'decay': [0.9, 0.95,0.99,0],
             }
 
             sample = list(ParameterSampler(grid, n_iter=1))[0]
