@@ -85,7 +85,7 @@ def generate_real_dataset_crafted():
     last_per = -1
 
     for ind, qpoint_list in enumerate(qpoint_lists):
-        vec = np.zeros((156,),dtype=np.float32)
+        vec = np.zeros((84,),dtype=np.float32)
         area_points = [[] for _ in np.arange(12)]
         area_counts = np.zeros(12)
         area_x_means = np.zeros(12)
@@ -94,12 +94,6 @@ def generate_real_dataset_crafted():
         area_highest = np.zeros(12)
         area_highest_pow = np.zeros(12)
         area_pow_means = np.zeros(12)
-        area_x_vars = np.zeros(12)
-        area_y_vars = np.zeros(12)
-        area_z_vars = np.zeros(12)
-        area_xy_covars = np.zeros(12)
-        area_xz_covars = np.zeros(12)
-        area_yz_covars = np.zeros(12)
         bad = False
 
         for qpoint in qpoint_list:
@@ -124,40 +118,14 @@ def generate_real_dataset_crafted():
                 area_z_means[area] /= area_counts[area]
                 area_pow_means[area] /= area_pow_means[area]
 
-            for point in area_points[area]:
-                area_x_vars[area] += (float(point[0]) - area_x_means[area])**2
-                area_y_vars[area] += (float(point[1]) - area_y_means[area])**2
-                area_z_vars[area] += (float(point[2]) - area_z_means[area])**2
-            # if there is only one point, we assume the uncorrected estimator and divide by one
-            if area_counts[area] > 1:
-                area_x_vars[area] *= 1/(area_counts[area]-1)
-                area_y_vars[area] *= 1/(area_counts[area]-1)
-                area_z_vars[area] *= 1/(area_counts[area]-1)
-
-            for point in area_points[area]:
-                area_xy_covars[area] += (float(point[0]) - area_x_means[area])*(float(point[1]) - area_y_means[area])
-                area_xz_covars[area] += (float(point[0]) - area_x_means[area])*(float(point[2]) - area_z_means[area])
-                area_yz_covars[area] += (float(point[1]) - area_y_means[area])*(float(point[2]) - area_z_means[area])
-            # if there is only one point, we assume the uncorrected estimator and divide by one
-            if area_counts[area] > 1:
-                area_xy_covars[area] *= 1/(area_counts[area]-1)
-                area_xz_covars[area] *= 1/(area_counts[area]-1)
-                area_yz_covars[area] *= 1/(area_counts[area]-1)
-
         for area in np.arange(12):
-            vec[area*11] = area_counts[area]
-            vec[area*11+1] = area_x_means[area]
-            vec[area*11+2] = area_y_means[area]
-            vec[area*11+3] = area_z_means[area]
-            vec[area*11+4] = area_x_vars[area]
-            vec[area*11+5] = area_y_vars[area]
-            vec[area*11+6] = area_z_vars[area]
-            vec[area*11+7] = area_xy_covars[area]
-            vec[area*11+8] = area_xz_covars[area]
-            vec[area*11+9] = area_yz_covars[area]
-            vec[area*11+10] = area_highest[area]
-            vec[area*11+11] = area_highest_pow[area]
-            vec[area*11+12] = area_pow_means[area]
+            vec[area*7] = area_counts[area]
+            vec[area*7+1] = area_x_means[area]
+            vec[area*7+2] = area_y_means[area]
+            vec[area*7+3] = area_z_means[area]
+            vec[area*7+4] = area_highest[area]
+            vec[area*7+5] = area_highest_pow[area]
+            vec[area*7+6] = area_pow_means[area]
 
 
         for dim in vec:
@@ -177,8 +145,8 @@ def generate_real_dataset_crafted():
             last_per = curr_percent
             print 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
 
-    f = h5.File("./crafted_real.hdf5", "w")
-    f.create_dataset('data_set/data_set', (len(good_samples),156), dtype='f')
+    f = h5.File("./crafted_real_reduced.hdf5", "w")
+    f.create_dataset('data_set/data_set', (len(good_samples),84), dtype='f')
     f.create_dataset('labels/real_labels', (len(good_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(good_annotations),), dtype=dt)
@@ -198,7 +166,7 @@ def generate_real_dataset_crafted():
 
     f.close()
 
-    generate_train_val_test_set("./crafted_real.hdf5", "train_val_test_crafted_real.hdf5")
+    generate_train_val_test_set("./crafted_real_reduced.hdf5", "train_val_test_crafted_real_reduced.hdf5")
 
 
 if __name__ == '__main__':
