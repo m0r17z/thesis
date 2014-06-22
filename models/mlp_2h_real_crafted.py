@@ -78,7 +78,7 @@ def make_data_dict(trainer,data):
 def new_trainer(pars, data):
 
     # 132 for the hand-crafted features
-    input_size = 132
+    input_size = 156
     # 13 as there are 12 fields
     output_size = 13
     batch_size = pars['batch_size']
