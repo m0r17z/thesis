@@ -21,9 +21,9 @@ def preamble(i):
 
     minutes_before_3_hour = 15
     slurm_preamble = '#SBATCH -J MLP_2hiddens_crafted_%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=3000\n'
+    slurm_preamble += '#SBATCH --mem=4000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
-    slurm_preamble += '#SBATCH --exclude=cn-4,cn-5,cn-7,cn-8\n'
+    slurm_preamble += '#SBATCH --exclude=cn-4,cn-5,cn-6,cn-7,cn-8\n'
     return pre + slurm_preamble
 
 
@@ -55,7 +55,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('/nthome/maugust/thesis/train_val_test_crafted_real.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/train_val_test_crafted_real_int.hdf5','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
