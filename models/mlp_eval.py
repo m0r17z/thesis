@@ -26,7 +26,7 @@ def evaluate_mlp(args):
         with gzip.open(cps[-1], 'rb') as fp:
                 trainer = cPickle.load(fp)
                 trainer.model.parameters.data[...] = trainer.best_pars
-                data = h5.File(os.path.join(data_dir,'usarray_data_scaled_train_val_test_real.hdf5'),'r')
+                data = h5.File(os.path.join(data_dir,'train_val_test_crafted_real_int.hdf5'),'r')
                 TX = data['test_set/test_set']
                 TA = data['test_annotations/test_annotations']
                 TZ = data['test_labels/real_test_labels']
@@ -39,7 +39,7 @@ def evaluate_mlp(args):
                 result = f_n_wrong(TX,TZ)
                 result_s = 'model achieved %f%% classification error on the test set' %(result)
 
-                indices = np.random.rand(50) * 90000
+                indices = np.random.rand(50) * 10000
                 for i in np.arange(50):
                     index = indices[i]
                     prediction = trainer.model.predict(np.reshape(TX[index],(1,len(TX[index]))))
