@@ -113,7 +113,8 @@ def generate_real_dataset_binning(center=True):
                 pcol += 1
                 if grid[x-min_x_cm/bin_cm][y][z] < pow:
                     grid[x-min_x_cm/bin_cm][y][z] = pow
-            grid[x-min_x_cm/bin_cm][y][z] = pow
+            else:
+                grid[x-min_x_cm/bin_cm][y][z] = pow
             ps += 1
 
         # unroll the grid into a vector?!

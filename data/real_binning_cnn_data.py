@@ -115,7 +115,7 @@ def generate_real_dataset_binning_cnn(data_path):
                 if grid[z][x-min_x_cm/bin_cm][y] < pow:
                     grid[z][x-min_x_cm/bin_cm][y] = pow
             else:
-		grid[z][x-min_x_cm/bin_cm][y] = pow
+		        grid[z][x-min_x_cm/bin_cm][y] = pow
             ps += 1
 
         # unroll the grid into a vector?!
