@@ -7,9 +7,9 @@ import os
 
 def generate_real_dataset_binning_cnn(data_path):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open(os.path.join(data_path,'samples.txt'))
-    labels = open(os.path.join(data_path,'labels.txt'))
-    annotations = open(os.path.join(data_path,'annotations.txt'))
+    samples = open(os.path.join(data_path,'samples_int.txt'))
+    labels = open(os.path.join(data_path,'labels_int.txt'))
+    annotations = open(os.path.join(data_path,'annotations_int.txt'))
 
     bad_samples = []
     real_labels = []
@@ -91,7 +91,7 @@ def generate_real_dataset_binning_cnn(data_path):
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File(os.path.join(data_path,"binning_real_cnn.hdf5"), "w")
+    f = h5.File(os.path.join(data_path,"binning_real_cnn_int.hdf5"), "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),z_range*x_range*y_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -114,7 +114,8 @@ def generate_real_dataset_binning_cnn(data_path):
                 pcol += 1
                 if grid[z][x-min_x_cm/bin_cm][y] < pow:
                     grid[z][x-min_x_cm/bin_cm][y] = pow
-            grid[z][x-min_x_cm/bin_cm][y] = pow
+            else:
+		grid[z][x-min_x_cm/bin_cm][y] = pow
             ps += 1
 
         # unroll the grid into a vector?!
@@ -135,7 +136,7 @@ def generate_real_dataset_binning_cnn(data_path):
 
     f.close()
 
-    generate_train_val_test_set(os.path.join(data_path,"binning_real_cnn.hdf5"), os.path.join(data_path,"train_val_test_binning_real_cnn.hdf5"))
+    generate_train_val_test_set(os.path.join(data_path,"binning_real_cnn_int.hdf5"), os.path.join(data_path,"train_val_test_binning_real_cnn_int.hdf5"))
 
 
 if __name__ == '__main__':

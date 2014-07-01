@@ -21,7 +21,7 @@ def preamble(i):
 
     minutes_before_3_hour = 15
     slurm_preamble = '#SBATCH -J CNN_2c2h_binning_real_%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=18000\n'
+    slurm_preamble += '#SBATCH --mem=10000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
     slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
     return pre + slurm_preamble
@@ -59,7 +59,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('/nthome/maugust/thesis/train_val_test_binning_real_cnn.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/train_val_test_binning_real_cnn_int.hdf5','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
@@ -97,7 +97,7 @@ def new_trainer(pars, data):
     batch_size = pars['batch_size']
     m = Cnn(input_size, pars['n_hidden_conv'], pars['n_hidden_full'], output_size,
             pars['hidden_conv_transfers'], pars['hidden_full_transfers'], 'softmax',
-            loss='cat_ce',image_height=im_height,image_width=im_width,n_image_channel=n_channels,pool_size=pars['pool_size'],filter_shapes=pars['filter_shapes'],
+            loss='bern_ces',image_height=im_height,image_width=im_width,n_image_channel=n_channels,pool_size=pars['pool_size'],filter_shapes=pars['filter_shapes'],
             batch_size = batch_size, optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 

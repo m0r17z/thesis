@@ -18,9 +18,9 @@ import docopt
 
 def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open(os.path.join(data_path, 'samples.txt'))
-    labels = open(os.path.join(data_path, './labels.txt'))
-    annotations = open(os.path.join(data_path, './annotations.txt'))
+    samples = open(os.path.join(data_path, 'samples_int.txt'))
+    labels = open(os.path.join(data_path, 'labels_int.txt'))
+    annotations = open(os.path.join(data_path, 'annotations_int.txt'))
     out_f = open(os.path.join(data_path,'rp_out'),'w')
 
     bad_samples = []
@@ -121,7 +121,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     out_f.write(out_s)
     out_f.close()
 
-    f_path = os.path.join(data_path,'rp_real_sparse.hdf5') if sparse else os.path.join(data_path,'rp_real_gauss.hdf5')
+    f_path = os.path.join(data_path,'rp_real_sparse_int.hdf5') if sparse else os.path.join(data_path,'rp_real_gauss_int.hdf5')
     print f_path
     f = h5.File(f_path, "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists), n_dims), dtype='f')
@@ -184,9 +184,9 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     f.close()
 
     if sparse:
-        generate_train_val_test_set(os.path.join(data_path,"rp_real_sparse.hdf5"), os.path.join(data_path,"train_val_test_rp_real_sparse.hdf5"))
+        generate_train_val_test_set(os.path.join(data_path,"rp_real_sparse_int.hdf5"), os.path.join(data_path,"train_val_test_rp_real_sparse_int.hdf5"))
     else:
-        generate_train_val_test_set(os.path.join(data_path,"rp_real_gauss.hdf5"), os.path.join(data_path,"train_val_test_rp_real_gauss.hdf5"))
+        generate_train_val_test_set(os.path.join(data_path,"rp_real_gauss_int.hdf5"), os.path.join(data_path,"train_val_test_rp_real_gauss_int.hdf5"))
 
 if __name__ == '__main__':
     #args = docopt.docopt(__doc__)

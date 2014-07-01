@@ -91,7 +91,7 @@ def generate_real_dataset_binning(center=True):
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("./usarray_data_binning_real_int.hdf5", "w")
+    f = h5.File("./binning_real_int.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -131,8 +131,11 @@ def generate_real_dataset_binning(center=True):
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
-    f['data_set/data_set'] = scale(f['data_set/data_set'], with_mean=center)
+    f['data_set/data_set'][...] = scale(f['data_set/data_set'], with_mean=center)
 
     f.close()
 
-    generate_train_val_test_set("./data_binning_real_int.hdf5", "train_val_test_binning_real_int.hdf5")
+    generate_train_val_test_set("./binning_real_int.hdf5", "train_val_test_binning_real_int.hdf5")
+
+if __name__ == '__main__':
+    generate_real_dataset_binning()

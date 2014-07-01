@@ -21,9 +21,9 @@ def preamble(i):
 
     minutes_before_3_hour = 15
     slurm_preamble = '#SBATCH -J MLP_2hiddens_rp_sparse%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=10000\n'
+    slurm_preamble += '#SBATCH --mem=6000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
-    slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
+    slurm_preamble += '#SBATCH --exclude=cn-5,cn-8\n'
     return pre + slurm_preamble
 
 
@@ -55,7 +55,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('/nthome/maugust/thesis/train_val_test_rp_real_sparse.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/train_val_test_rp_real_sparse_int.hdf5','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
@@ -78,7 +78,7 @@ def make_data_dict(trainer,data):
 def new_trainer(pars, data):
 
     # 3004 for random projections
-    input_size = 1446
+    input_size = 1247
     # 13 as there are 12 fields
     output_size = 13
     batch_size = pars['batch_size']

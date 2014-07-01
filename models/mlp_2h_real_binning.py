@@ -21,7 +21,7 @@ def preamble(i):
 
     minutes_before_3_hour = 15
     slurm_preamble = '#SBATCH -J MLP_2hiddens_on_us_real_%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=18000\n'
+    slurm_preamble += '#SBATCH --mem=10000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
     slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
     return pre + slurm_preamble
@@ -55,7 +55,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('/nthome/maugust/thesis/usarray_data_scaled_train_val_test_real.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/train_val_test_binning_real_int.hdf5','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
@@ -97,7 +97,7 @@ def new_trainer(pars, data):
     m.exprs['loss'] = m.exprs['loss'] + c_wd * weight_decay
 
     # length of dataset should be 270000 (for no time-integration)
-    n_report = 270000/batch_size
+    n_report = 40000/batch_size
     max_iter = n_report * 100
 
     interrupt = climin.stops.OnSignal()
