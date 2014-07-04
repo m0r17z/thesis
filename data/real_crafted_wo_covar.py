@@ -7,9 +7,9 @@ from sklearn.preprocessing import scale
 
 def generate_real_dataset_crafted():
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('./samples.txt')
-    labels = open('./labels.txt')
-    annotations = open('./annotations.txt')
+    samples = open('/nthome/maugust/thesis/samples.txt')
+    labels = open('/nthome/maugust/thesis/labels.txt')
+    annotations = open('/nthome/maugust/thesis/annotations.txt')
 
     bad_samples = []
     real_labels = []
