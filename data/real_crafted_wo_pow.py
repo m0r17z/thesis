@@ -170,7 +170,7 @@ def generate_real_dataset_crafted():
             print 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
 
     f = h5.File("./crafted_real_int_wo_pow.hdf5", "w")
-    f.create_dataset('data_set/data_set', (len(good_samples),156), dtype='f')
+    f.create_dataset('data_set/data_set', (len(good_samples),132), dtype='f')
     f.create_dataset('labels/real_labels', (len(good_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(good_annotations),), dtype=dt)
