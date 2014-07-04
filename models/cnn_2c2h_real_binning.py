@@ -97,7 +97,7 @@ def new_trainer(pars, data):
     batch_size = pars['batch_size']
     m = Cnn(input_size, pars['n_hidden_conv'], pars['n_hidden_full'], output_size,
             pars['hidden_conv_transfers'], pars['hidden_full_transfers'], 'softmax',
-            loss='bern_ces',image_height=im_height,image_width=im_width,n_image_channel=n_channels,pool_size=pars['pool_size'],filter_shapes=pars['filter_shapes'],
+            loss='cat_ce',image_height=im_height,image_width=im_width,n_image_channel=n_channels,pool_size=pars['pool_size'],filter_shapes=pars['filter_shapes'],
             batch_size = batch_size, optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 

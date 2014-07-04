@@ -26,7 +26,7 @@ def evaluate_mlp(args):
         with gzip.open(cps[-1], 'rb') as fp:
                 trainer = cPickle.load(fp)
                 trainer.model.parameters.data[...] = trainer.best_pars
-                data = h5.File(os.path.join(data_dir,'train_val_test_crafted_real_int.hdf5'),'r')
+                data = h5.File(os.path.join(data_dir,'train_val_test_binning_real_cnn_int.hdf5'),'r')
                 TX = data['test_set/test_set']
                 TA = data['test_annotations/test_annotations']
                 TZ = data['test_labels/real_test_labels']
@@ -36,10 +36,10 @@ def evaluate_mlp(args):
                                    T.argmax(trainer.model.exprs['target'], axis=1)).mean()
                 f_n_wrong = trainer.model.function(['inpt', 'target'], n_wrong)
 
-                result = f_n_wrong(TX,TZ)
+                result = trainer.model.apply_minibatches_function(f_n_wrong,TX,TZ)
                 result_s = 'model achieved %f%% classification error on the test set' %(result)
 
-                indices = np.random.rand(50) * 10000
+                '''indices = np.random.rand(50) * 10000
                 for i in np.arange(50):
                     index = indices[i]
                     prediction = trainer.model.predict(np.reshape(TX[index],(1,len(TX[index]))))
@@ -50,7 +50,7 @@ def evaluate_mlp(args):
                         result_s += '\nWRONG: prediction for sample with annotation %s at position %d is %d with %.3f certainty, correct label %d had %.3f certainty' \
                                     %(str(TA[index]), index, np.argmax(prediction[0]),prediction[0][np.argmax(prediction[0])], np.argmax(TZ[index]),prediction[0][np.argmax(TZ[index])])
 
-                print result_s
+                print result_s'''
                 with open(os.path.join(dir,'eval_mlp_real_result.txt'),'w') as f:
                     f.write(result_s)
 
