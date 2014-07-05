@@ -166,7 +166,7 @@ def generate_real_dataset_crafted():
 
     f.close()
 
-    generate_train_val_test_set("./crafted_real_reduced_wo_covar.hdf5", "train_val_test_crafted_real_wo_covar.hdf5")
+    generate_train_val_test_set("./crafted_real_reduced_wo_covar.hdf5", "train_val_test_crafted_real_int_wo_covar.hdf5")
 
 
 if __name__ == '__main__':
