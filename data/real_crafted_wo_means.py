@@ -110,10 +110,10 @@ def generate_real_dataset_crafted():
                 area_pow_means[area] /= area_pow_means[area]
 
         for area in np.arange(12):
-            vec[area*11] = area_counts[area]
-            vec[area*11+1] = area_highest[area]
-            vec[area*11+2] = area_highest_pow[area]
-            vec[area*11+3] = area_pow_means[area]
+            vec[area*4] = area_counts[area]
+            vec[area*4+1] = area_highest[area]
+            vec[area*4+2] = area_highest_pow[area]
+            vec[area*4+3] = area_pow_means[area]
 
 
         for dim in vec:
