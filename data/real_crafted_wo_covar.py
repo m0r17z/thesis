@@ -131,14 +131,14 @@ def generate_real_dataset_crafted():
             vec[area*7+6] = area_pow_means[area]
 
 
-        for ind, dim in enumerate(vec):
+        for index, dim in enumerate(vec):
             if not type(dim) == np.float32:
                 bad = True
             if dim == np.inf or dim == -np.inf:
                 bad = True
             if dim == np.nan:
                 bad = True
-            if ind == 8 and (dim < -1000 or dim > 1000):
+            if index == 8 and (dim < -1000 or dim > 1000):
                 print dim
                 bad = True
         if not bad:
