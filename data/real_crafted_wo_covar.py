@@ -7,9 +7,12 @@ from sklearn.preprocessing import scale
 
 def generate_real_dataset_crafted():
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('/nthome/maugust/thesis/samples.txt')
-    labels = open('/nthome/maugust/thesis/labels.txt')
-    annotations = open('/nthome/maugust/thesis/annotations.txt')
+    #samples = open('./samples_int.txt')
+    samples = open('/nthome/maugust/thesis/samples_int.txt')
+    #labels = open('./labels_int.txt')
+    labels = open('/nthome/maugust/thesis/labels_int.txt')
+    #annotations = open('./annotations_int.txt')
+    annotations = open('/nthome/maugust/thesis/annotations_int.txt')
 
     bad_samples = []
     real_labels = []
@@ -128,12 +131,15 @@ def generate_real_dataset_crafted():
             vec[area*7+6] = area_pow_means[area]
 
 
-        for dim in vec:
+        for ind, dim in enumerate(vec):
             if not type(dim) == np.float32:
                 bad = True
             if dim == np.inf or dim == -np.inf:
                 bad = True
             if dim == np.nan:
+                bad = True
+            if ind == 8 and (dim < -1000 or dim > 1000):
+                print dim
                 bad = True
         if not bad:
             good_samples.append(vec)
@@ -145,7 +151,7 @@ def generate_real_dataset_crafted():
             last_per = curr_percent
             print 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
 
-    f = h5.File("./crafted_real_reduced_wo_covar.hdf5", "w")
+    f = h5.File("./crafted_real_int_wo_covar.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(good_samples),84), dtype='f')
     f.create_dataset('labels/real_labels', (len(good_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -166,7 +172,7 @@ def generate_real_dataset_crafted():
 
     f.close()
 
-    generate_train_val_test_set("./crafted_real_reduced_wo_covar.hdf5", "train_val_test_crafted_real_int_wo_covar.hdf5")
+    generate_train_val_test_set("./crafted_real_int_wo_covar.hdf5", "train_val_test_crafted_real_int_wo_covar.hdf5")
 
 
 if __name__ == '__main__':
