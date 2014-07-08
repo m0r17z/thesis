@@ -12,7 +12,7 @@ from breze.learn.data import one_hot
 
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
-    module = os.path.join(train_folder, 'mlp_2h_real_crafted.py')
+    module = os.path.join(train_folder, 'mlp_2h_real_crafted_wo_highest.py')
     script = '/nthome/maugust/git/alchemie/scripts/alc.py'
     runner = 'python %s run %s' % (script, module)
 
@@ -78,7 +78,7 @@ def make_data_dict(trainer,data):
 def new_trainer(pars, data):
 
     # 132 for the hand-crafted features
-    input_size = 156
+    input_size = 144
     # 13 as there are 12 fields
     output_size = 13
     batch_size = pars['batch_size']
