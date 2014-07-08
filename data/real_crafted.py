@@ -1,6 +1,7 @@
 
 import numpy as np
 import h5py as h5
+import cPickle
 from utils import determine_label
 from generate_datasets import generate_train_val_test_set
 from sklearn.preprocessing import scale
@@ -167,6 +168,10 @@ def generate_real_dataset_crafted():
                 bad = True
             if dim == np.nan:
                 bad = True
+            if dim > 1e+20 or dim < -1e+20:
+                print 'BAD'
+                bad = True
+
         if not bad:
             good_samples.append(vec)
             good_labels.append(real_labels[ind])
@@ -193,6 +198,13 @@ def generate_real_dataset_crafted():
     print 'dimensionality of the samples: ' +str(len(f['data_set/data_set'][0]))
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
+
+    #compute mean and std for scaling in the ros node
+    means = np.mean(f['data_set/data_set'], axis=0)
+    stds = np.std(f['data_set/data_set'], axis=0)
+    stds[stds == 0.0] = 1.0
+    cPickle.dump(means, open('means_crafted.pkl', 'wb'))
+    cPickle.dump(stds, open('stds_crafted.pkl', 'wb'))
 
     f['data_set/data_set'][...] = scale(f['data_set/data_set'])
 
