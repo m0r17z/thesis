@@ -8,6 +8,7 @@ from sensor_msgs.msg import PointCloud2
 from point_cloud import read_points
 from breze.learn.cnn import Cnn
 from breze.learn.mlp import Mlp
+from markov_chain import Markov_Chain
 
 
 class Predictor:
@@ -22,9 +23,13 @@ class Predictor:
                     self.robust = line.replace('robust=', '').replace('\n', '')
         print 'mode=%s\nrobustness=%s' %(self.mode, self.robust)
 
-        if self.robust == 'on':
+        if self.robust == 'majority':
             self.pred_count = 0
             self.predictions = np.zeros((13,))
+        if self.robust == 'markov':
+            self.markov = Markov_Chain()
+            self.last_state = 0
+            self.current_state = 0
 
         self.sample_count = 0
         self.sample = []
@@ -111,18 +116,8 @@ class Predictor:
 
         grid = np.reshape(grid,(1,-1))
 
-        prediction = np.argmax(self.model.predict(grid))
+        self.output_prediction(self.model.predict(grid))
 
-        if self.robust == 'on':
-            # majority vote among the last three predictions
-            self.predictions[prediction] += 1
-            self.pred_count += 1
-            if self.pred_count == 3:
-                print 'robust prediction: %d' %np.argmax(self.predictions)
-                self.pred_count = 0
-                self.predictions = np.zeros((13,))
-        if self.robust == 'off':
-            print 'fast prediction: %d' %prediction
 
     # let the model predict the output
     def crafted_predict(self):
@@ -204,17 +199,28 @@ class Predictor:
         vec -= self.means
         vec /= self.stds
 
-        prediction = np.argmax(self.model.predict(vec))
+        self.output_prediction(self.model.predict(vec))
 
-        if self.robust == 'on':
+    # create the output
+    def output_prediction(self, probabilites):
+        if self.robust == 'majority':
+            prediction = np.argmax(probabilites)
             # majority vote among the last three predictions
             self.predictions[prediction] += 1
             self.pred_count += 1
             if self.pred_count == 3:
-                print 'robust prediction: %d' %np.argmax(self.predictions)
+                print 'majority prediction: %d' %np.argmax(self.predictions)
                 self.pred_count = 0
                 self.predictions = np.zeros((13,))
+        if self.robust == 'markov':
+            markov_probs = self.markov.transition_table[self.last_state]
+            probabilites *= markov_probs
+            probabilites /= np.sum(probabilites)
+            prediction = np.argmax(probabilites)
+            print 'markov prediction: %d' %prediction
+            self.last_state = prediction
         if self.robust == 'off':
+            prediction = np.argmax(probabilites)
             print 'fast prediction: %d' %prediction
 
         
