@@ -466,8 +466,8 @@ class MoE(Model, SupervisedBrezeWrapperBase):
             'target': T.matrix('target')
         }
 
-        self.exprs['inpt'].tag.test_value = np.random.rand(5, 784)
-        self.exprs['target'].tag.test_value = np.random.rand(5, 10)
+        #self.exprs['inpt'].tag.test_value = np.random.rand(5, 784)
+        #self.exprs['target'].tag.test_value = np.random.rand(5, 10)
 
         if self.imp_weight:
             self.exprs['imp_weight'] = T.matrix('imp_weight')
