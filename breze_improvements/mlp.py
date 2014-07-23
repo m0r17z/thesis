@@ -373,8 +373,8 @@ class FastDropoutNetwork(Model, SupervisedBrezeWrapperBase):
                 W = self.parameters['hidden_to_out']
                 max_length_columns(W, self.max_length)
 
-theano.config.compute_test_value = 'warn'
-theano.config.exception_verbosity = 'high'
+#theano.config.compute_test_value = 'warn'
+#theano.config.exception_verbosity = 'high'
 class MoE(Model, SupervisedBrezeWrapperBase):
     """Multilayer perceptron class.
 
