@@ -24,7 +24,7 @@ def preamble(i):
     slurm_preamble = '#SBATCH -J MoE_2hiddens_on_us_real_%d\n' % (i)
     slurm_preamble += '#SBATCH --mem=4000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
-    slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
+    slurm_preamble += '#SBATCH --exclude=cn-5,cn-6,cn-7,cn-8\n'
     return pre + slurm_preamble
 
 
