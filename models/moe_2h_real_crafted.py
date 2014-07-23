@@ -13,7 +13,7 @@ from breze.learn.data import one_hot
 
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
-    module = os.path.join(train_folder, 'moe_mlp_2h_real_crafted.py')
+    module = os.path.join(train_folder, 'moe_2h_real_crafted.py')
     script = '/nthome/maugust/git/alchemie/scripts/alc.py'
     runner = 'python %s run %s' % (script, module)
 
@@ -24,7 +24,7 @@ def preamble(i):
     slurm_preamble = '#SBATCH -J MoE_2hiddens_on_us_real_%d\n' % (i)
     slurm_preamble += '#SBATCH --mem=4000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
-    slurm_preamble += '#SBATCH --exclude=cn-5,cn-6,cn-7,cn-8\n'
+    slurm_preamble += '#SBATCH --exclude=cn-6,cn-7,cn-8\n'
     return pre + slurm_preamble
 
 

@@ -27,7 +27,7 @@ def evaluate_mlp(args):
                 trainer = cPickle.load(fp)
                 trainer.model.parameters.data[...] = trainer.best_pars
 		cPickle.dump(trainer.best_pars, open('best_pars.pkl','wb'))
-                data = h5.File(os.path.join(data_dir,'train_val_test_crafted_real_int.hdf5'),'r')
+                data = h5.File(os.path.join(data_dir,'train_val_test_binning_real_int.hdf5'),'r')
                 TX = data['test_set/test_set']
                 TA = data['test_annotations/test_annotations']
                 TZ = data['test_labels/real_test_labels']

@@ -540,7 +540,7 @@ class MoE(Model, SupervisedBrezeWrapperBase):
         selection_matrix = T.zeros((chosen_experts.shape[0],3))
         selection_matrix = T.set_subtensor(selection_matrix[T.arange(selection_matrix.shape[0]), chosen_experts], 1)
         selection_matrix = T.reshape(selection_matrix, (selection_matrix.shape[0], selection_matrix.shape[1], 1))
-        expert_outputs = T.concatenate([T.reshape(self.exprs['output_exp_%d' %exp], (self.exprs['output_exp_%d' %exp].shape[0],1,10)) for exp in np.arange(self.n_experts)], axis=1)
+        expert_outputs = T.concatenate([T.reshape(self.exprs['output_exp_%d' %exp], (self.exprs['output_exp_%d' %exp].shape[0],1,self.n_expert_output)) for exp in np.arange(self.n_experts)], axis=1)
         chosen_outputs = selection_matrix * expert_outputs
         self.exprs['output'] = T.sum(chosen_outputs, axis=1)
 
