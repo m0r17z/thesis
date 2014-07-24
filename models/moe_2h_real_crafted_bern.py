@@ -90,7 +90,7 @@ def new_trainer(pars, data):
     m = MoE(nr_experts, input_size, pars['n_hidden_man'], pars['n_hidden_exp'], nr_experts, output_size,
             hidden_transfers=pars['hidden_transfers_man'], experts_hidden_transfers=pars['hidden_transfers_exp'], experts_out_transfer='softmax',
             out_transfer='softmax',
-            expert_loss='cat_ce', batch_size = batch_size,
+            expert_loss='bern_ces', batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
