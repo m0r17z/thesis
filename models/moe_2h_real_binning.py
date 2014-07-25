@@ -13,7 +13,7 @@ from breze.learn.data import one_hot
 
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
-    module = os.path.join(train_folder, 'moe_mlp_2h_real_binning.py')
+    module = os.path.join(train_folder, 'moe_2h_real_binning.py')
     script = '/nthome/maugust/git/alchemie/scripts/alc.py'
     runner = 'python %s run %s' % (script, module)
 
@@ -94,6 +94,13 @@ def new_trainer(pars, data):
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
+    weight_decay = ((m.parameters.in_to_hidden**2).sum()
+                    + (m.parameters.hidden_to_hidden_0**2).sum()
+                    + (m.parameters.hidden_to_out**2).sum())
+    weight_decay /= m.exprs['inpt'].shape[0]
+    m.exprs['true_loss'] = m.exprs['loss']
+    c_wd = pars['L2']
+    m.exprs['loss'] = m.exprs['loss'] + c_wd * weight_decay
 
     # length of dataset should be 270000 (for no time-integration)
     n_report = 40000/batch_size

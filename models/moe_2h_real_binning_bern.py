@@ -13,7 +13,7 @@ from breze.learn.data import one_hot
 
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
-    module = os.path.join(train_folder, 'moe_2h_real_crafted.py')
+    module = os.path.join(train_folder, 'moe_2h_real_binning.py')
     script = '/nthome/maugust/git/alchemie/scripts/alc.py'
     runner = 'python %s run %s' % (script, module)
 
@@ -22,9 +22,9 @@ def preamble(i):
 
     minutes_before_3_hour = 15
     slurm_preamble = '#SBATCH -J MoE_2hiddens_on_us_real_%d\n' % (i)
-    slurm_preamble += '#SBATCH --mem=4000\n'
+    slurm_preamble += '#SBATCH --mem=10000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
-    slurm_preamble += '#SBATCH --exclude=cn-6,cn-7,cn-8\n'
+    slurm_preamble += '#SBATCH --exclude=cn-7,cn-8\n'
     return pre + slurm_preamble
 
 
@@ -58,7 +58,7 @@ def draw_pars(n=1):
 
 
 def load_data(pars):
-   data = h5.File('/nthome/maugust/thesis/train_val_test_crafted_real_int.hdf5','r')
+   data = h5.File('/nthome/maugust/thesis/train_val_test_binning_real_int.hdf5','r')
    X = data['trainig_set/train_set']
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
@@ -81,7 +81,7 @@ def make_data_dict(trainer,data):
 def new_trainer(pars, data):
 
     # 3700 for binning
-    input_size = 156
+    input_size = 3700
     # 13 as there are 12 fields
     output_size = 13
     batch_size = pars['batch_size']
@@ -90,7 +90,7 @@ def new_trainer(pars, data):
     m = MoE(nr_experts, input_size, pars['n_hidden_man'], pars['n_hidden_exp'], nr_experts, output_size,
             hidden_transfers=pars['hidden_transfers_man'], experts_hidden_transfers=pars['hidden_transfers_exp'], experts_out_transfer='softmax',
             out_transfer='softmax',
-            expert_loss='cat_ce', batch_size = batch_size,
+            expert_loss='bern_ces', batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
@@ -101,7 +101,6 @@ def new_trainer(pars, data):
     m.exprs['true_loss'] = m.exprs['loss']
     c_wd = pars['L2']
     m.exprs['loss'] = m.exprs['loss'] + c_wd * weight_decay
-
 
     # length of dataset should be 270000 (for no time-integration)
     n_report = 40000/batch_size
