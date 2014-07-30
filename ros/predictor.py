@@ -8,7 +8,7 @@ from sensor_msgs.msg import PointCloud2
 from point_cloud import read_points
 from breze.learn.cnn import Cnn
 from breze.learn.mlp import Mlp
-from markov_chain import Markov_Chain
+from markov_chain import Markov_Chain, Markov_Chain_2nd
 
 
 class Predictor:
@@ -28,6 +28,11 @@ class Predictor:
             self.predictions = np.zeros((13,))
         if self.robust == 'markov':
             self.markov = Markov_Chain()
+            self.last_state = 0
+            self.current_state = 0
+        if self.robust == 'markov_2nd':
+            self.markov = Markov_Chain_2nd()
+            self.pre_last_state = 0
             self.last_state = 0
             self.current_state = 0
 
@@ -218,6 +223,14 @@ class Predictor:
             probabilites /= np.sum(probabilites)
             prediction = np.argmax(probabilites)
             print 'markov prediction: %d' %prediction
+            self.last_state = prediction
+        if self.robust == 'markov_2nd':
+            markov_probs = self.markov.transition_table[self.pre_last_state][self.last_state]
+            probabilites *= markov_probs
+            probabilites /= np.sum(probabilites)
+            prediction = np.argmax(probabilites)
+            print 'markov 2nd order prediction: %d' %prediction
+            self.pre_last_state = self.last_state
             self.last_state = prediction
         if self.robust == 'off':
             prediction = np.argmax(probabilites)
