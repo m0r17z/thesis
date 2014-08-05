@@ -5,7 +5,6 @@
 """
 
 import cPickle
-import numpy as np
 import docopt
 import os
 import matplotlib.pyplot as plt
@@ -13,7 +12,6 @@ import gzip
 import h5py as h5
 
 from breze.learn.tsne import Tsne
-from breze.learn.data import one_hot
 from alchemie import contrib
 from breze.learn.data import one_hot
 
