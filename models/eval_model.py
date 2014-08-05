@@ -26,7 +26,7 @@ def evaluate_mlp(args):
         with gzip.open(cps[-1], 'rb') as fp:
                 trainer = cPickle.load(fp)
                 trainer.model.parameters.data[...] = trainer.best_pars
-		cPickle.dump(trainer.best_pars, open('best_pars.pkl','wb'))
+                cPickle.dump(trainer.best_pars, open('best_pars.pkl','wb'))
                 data = h5.File(os.path.join(data_dir,'train_val_test_binning_real_int.hdf5'),'r')
                 TX = data['test_set/test_set']
                 TA = data['test_annotations/test_annotations']
@@ -39,7 +39,7 @@ def evaluate_mlp(args):
 
                 #result = trainer.model.apply_minibatches_function(f_n_wrong,TX,TZ)
                 result = f_n_wrong(TX,TZ)
-		result_s = 'model achieved %f%% classification error on the test set' %(result)
+                result_s = 'model achieved %f%% classification error on the test set' %(result)
 
                 indices = np.random.rand(50) * 10000
                 for i in np.arange(50):
