@@ -50,8 +50,8 @@ def generate_real_dataset_binning(center=True):
                 real_labels.append(-1)
                 bad = True
             else:
-                label_position[1] = int(float(position[0])*100) / bin_cm
-                label_position[2] = (int(float(position[1])*100) + max_y_cm) / bin_cm
+                label_position[0] = int(float(position[0])*100) / bin_cm
+                label_position[1] = (int(float(position[1])*100) + max_y_cm) / bin_cm
                 real_labels.append(label_position)
 
         ################# PROCESS THE Q-POINTS
@@ -94,7 +94,7 @@ def generate_real_dataset_binning(center=True):
 
     f = h5.File("./binning_real_regression.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
-    f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
+    f.create_dataset('labels/real_labels', (len(real_labels),2), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
 
