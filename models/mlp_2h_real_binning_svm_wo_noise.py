@@ -113,7 +113,7 @@ def new_trainer(pars, data):
     ])
 
     pause = climin.stops.ModuloNIterations(n_report)
-    reporter = KeyPrinter(['n_iter', 'train_loss', 'val_loss'])
+    reporter = KeyPrinter(['n_iter', 'train_loss', 'val_loss', 'emp_val_loss'])
 
     t = Trainer(
         m,
