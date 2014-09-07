@@ -14,6 +14,7 @@ import climin.initialize
 from sklearn.grid_search import ParameterSampler
 from breze.learn.data import one_hot
 
+
 def preamble(i):
     train_folder = os.path.dirname(os.path.realpath(__file__))
     module = os.path.join(train_folder, 'mlp_2h_real_binning_svm.py')
@@ -78,7 +79,7 @@ def make_data_dict(trainer,data):
     trainer.eval_data['train'] = ([data for data in train_data])
     trainer.eval_data['val'] = ([data for data in val_data])
 
-def squared_hinge(target, prediction):
+'''def squared_hinge(target, prediction):
     return (T.maximum(1 - target * prediction, 0) ** 2)
 
 
@@ -96,7 +97,7 @@ class TangMlp(Mlp):
         args = super(TangMlp, self)._make_args(X, Z)
         def corrupt(x, level):
             return x + np.random.normal(0, level, x.shape).astype(theano.config.floatX)
-        return (((corrupt(x, n), z), k) for n, ((x, z), k) in itertools.izip(self.noise_schedule, args))
+        return (((corrupt(x, n), z), k) for n, ((x, z), k) in itertools.izip(self.noise_schedule, args))'''
 
 
 def new_trainer(pars, data):
@@ -113,7 +114,7 @@ def new_trainer(pars, data):
 
     m = Mlp(input_size, pars['n_hidden'], output_size,
             hidden_transfers=pars['hidden_transfers'], out_transfer='identity',
-            loss=squared_hinge, batch_size = batch_size,
+            loss='squared_hinge', batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 

@@ -71,7 +71,7 @@ def load_data(pars):
    return (X, Z), (VX, VZ)
 
 
-def squared_hinge(target, prediction):
+'''def squared_hinge(target, prediction):
     return (T.maximum(1 - target * prediction, 0) ** 2)
 
 
@@ -89,7 +89,7 @@ class TangMlp(Mlp):
         args = super(TangMlp, self)._make_args(X, Z)
         def corrupt(x, level):
             return x + np.random.normal(0, level, x.shape).astype(theano.config.floatX)
-        return (((corrupt(x, n), z), k) for n, ((x, z), k) in itertools.izip(self.noise_schedule, args))
+        return (((corrupt(x, n), z), k) for n, ((x, z), k) in itertools.izip(self.noise_schedule, args))'''
 
 
 def make_data_dict(trainer,data):
@@ -110,12 +110,12 @@ def new_trainer(pars, data):
 
     # length of dataset should be 270000 (for no time-integration)
     n_report = 270000/batch_size
-    max_iter = n_report * 100
+    max_iter = n_report * 1
     #noise_schedule = (max(1 - float(i) / max_iter, 1e-4) for i in itertools.count())
 
     m = Mlp(input_size, pars['n_hidden'], output_size,
             hidden_transfers=pars['hidden_transfers'], out_transfer='identity',
-            loss=squared_hinge, batch_size = batch_size,
+            loss='squared_hinge', batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
