@@ -63,6 +63,8 @@ def load_data(pars):
    Z = one_hot(Z,13)
    VZ = one_hot(VZ,13)
 
+   Z = (Z * 2) - 1
+   VZ = (VZ * 2) - 1
 
    return (X, Z), (VX, VZ)
 

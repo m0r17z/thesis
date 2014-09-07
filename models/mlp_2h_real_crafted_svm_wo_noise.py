@@ -63,6 +63,8 @@ def load_data(pars):
    Z = one_hot(Z,13)
    VZ = one_hot(VZ,13)
 
+   Z = (Z * 2) - 1
+   VZ = (VZ * 2) - 1
 
    return (X, Z), (VX, VZ)
 
@@ -83,8 +85,8 @@ def new_trainer(pars, data):
     output_size = 13
     batch_size = pars['batch_size']
     m = Mlp(input_size, pars['n_hidden'], output_size, 
-            hidden_transfers=pars['hidden_transfers'], out_transfer='identity',
-            loss='squared_hinge', batch_size = batch_size,
+            hidden_transfers=pars['hidden_transfers'], out_transfer='softmax',
+            loss='cat_ce', batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
@@ -98,7 +100,7 @@ def new_trainer(pars, data):
 
     # length of dataset should be 270000 (for no time-integration)
     n_report = 270000/batch_size
-    max_iter = n_report * 100
+    max_iter = n_report * 1
 
     interrupt = climin.stops.OnSignal()
     print dir(climin.stops)
