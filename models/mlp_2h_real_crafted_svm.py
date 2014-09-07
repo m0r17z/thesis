@@ -73,10 +73,6 @@ def load_data(pars):
    return (X, Z), (VX, VZ)
 
 
-def squared_hinge(target, prediction):
-    return (T.maximum(1 - target * prediction, 0) ** 2)
-
-
 class TangMlp(Mlp):
 
     def __init__(
@@ -115,9 +111,9 @@ def new_trainer(pars, data):
     max_iter = n_report * 1
     noise_schedule = (max(1 - float(i) / max_iter, 1e-4) for i in itertools.count())
 
-    m = Mlp(input_size, pars['n_hidden'], output_size,
+    m = TangMlp(input_size, pars['n_hidden'], output_size,
             hidden_transfers=pars['hidden_transfers'], out_transfer='identity',
-            loss=squared_hinge, noise_schedule=noise_schedule, batch_size = batch_size,
+            loss='squared_hinge', noise_schedule=noise_schedule, batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
@@ -157,12 +153,358 @@ def make_report(pars, trainer, data):
     TZ = one_hot(TZ,13)
     current_pars = trainer.model.parameters.data
     trainer.model.parameters.data[...] = trainer.best_pars
-    n_wrong = 1 - T.eq(T.argmax(trainer.model.exprs['output'], axis=1), T.argmax(trainer.model.exprs['target'], axis=1)).mean()
+
+    n_wrong = 1 - T.eq(T.argmax(trainer.model.exprs['output'], axis=1),
+                               T.argmax(trainer.model.exprs['target'], axis=1)).mean()
     f_n_wrong = trainer.model.function(['inpt', 'target'], n_wrong)
-    emp_test_loss = f_n_wrong(TX, TZ)
+
+    f_pos = T.mean(T.neq(T.argmax(trainer.model.exprs['output'], axis=1),0) * T.eq(T.argmax(trainer.model.exprs['target'], axis=1), 0))
+    f_f_pos = trainer.model.function(['inpt', 'target'], f_pos)
+
+    f_neg = T.mean(T.eq(T.argmax(trainer.model.exprs['output'], axis=1),0) * T.neq(T.argmax(trainer.model.exprs['target'], axis=1), 0))
+    f_f_neg = trainer.model.function(['inpt', 'target'], f_neg)
+
+
+    emp_loss = f_n_wrong(TX,TZ)
+    f_p = f_f_pos(TX,TZ)
+    f_n = f_f_neg(TX,TZ)
+
+    P_pos = np.argmax(trainer.model.predict(TX),axis=1)
+    Z_pos = np.argmax(TZ, axis=1)
+
+    neighbour_fails = .0
+    relevant_fails = 0
+
+    for i in np.arange(len(P_pos)):
+        if P_pos[i] > 0 and Z_pos[i] > 0 and P_pos[i] != Z_pos[i]:
+            relevant_fails += 1
+            if is_neighbour(P_pos[i],Z_pos[i]):
+                neighbour_fails += 1
+
+    neighbour_fails /= relevant_fails
+
+
+    emp_loss_s = 'model achieved %f%% classification error on the test set' %emp_loss
+    f_p_s = '\nmodel achieved %f%% false positives on the test set' %f_p
+    f_n_s = '\nmodel achieved %f%% false negatives on the test set' %f_n
+    neigh_s = '\nmodel achieved %f%% neighbour misspredictions on the test set' %neighbour_fails
+
+    print emp_loss_s
+    print f_p_s
+    print f_n_s
+    print neigh_s
+    with open(os.path.join(dir,'eval_result.txt'),'w') as f:
+        f.write(emp_loss_s)
+        f.write(f_p_s)
+        f.write(f_n_s)
+        f.write(neigh_s)
     trainer.model.parameters.data[...] = current_pars
 
     return {'train_loss': trainer.score(*trainer.eval_data['train']),
             'val_loss': trainer.score(*trainer.eval_data['val']),
-            'best_emp_test_loss': emp_test_loss}
+            'best_emp_test_loss': emp_loss}
 
+def is_neighbour(a,b):
+    # assumption: a != b and a != 0 and b != 0
+    if a == 1:
+        if b == 2:
+            return True
+        if b == 3:
+            return False
+        if b == 4:
+            return False
+        if b == 5:
+            return True
+        if b == 6:
+            return True
+        if b == 7:
+            return False
+        if b == 8:
+            return False
+        if b == 9:
+            return False
+        if b == 10:
+            return False
+        if b == 11:
+            return False
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 2:
+        if b == 1:
+            return True
+        if b == 3:
+            return True
+        if b == 4:
+            return False
+        if b == 5:
+            return True
+        if b == 6:
+            return True
+        if b == 7:
+            return True
+        if b == 8:
+            return False
+        if b == 9:
+            return False
+        if b == 10:
+            return False
+        if b == 11:
+            return False
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 3:
+        if b == 1:
+            return False
+        if b == 2:
+            return True
+        if b == 4:
+            return True
+        if b == 5:
+            return False
+        if b == 6:
+            return True
+        if b == 7:
+            return True
+        if b == 8:
+            return True
+        if b == 9:
+            return False
+        if b == 10:
+            return False
+        if b == 11:
+            return False
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 4:
+        if b == 1:
+            return False
+        if b == 2:
+            return False
+        if b == 3:
+            return True
+        if b == 5:
+            return False
+        if b == 6:
+            return False
+        if b == 7:
+            return True
+        if b == 8:
+            return True
+        if b == 9:
+            return False
+        if b == 10:
+            return False
+        if b == 11:
+            return False
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 5:
+        if b == 1:
+            return True
+        if b == 2:
+            return True
+        if b == 3:
+            return False
+        if b == 4:
+            return False
+        if b == 6:
+            return True
+        if b == 7:
+            return False
+        if b == 8:
+            return False
+        if b == 9:
+            return True
+        if b == 10:
+            return True
+        if b == 11:
+            return False
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 6:
+        if b == 1:
+            return True
+        if b == 2:
+            return True
+        if b == 3:
+            return True
+        if b == 4:
+            return False
+        if b == 5:
+            return True
+        if b == 7:
+            return True
+        if b == 8:
+            return False
+        if b == 9:
+            return True
+        if b == 10:
+            return True
+        if b == 11:
+            return True
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 7:
+        if b == 1:
+            return False
+        if b == 2:
+            return True
+        if b == 3:
+            return True
+        if b == 4:
+            return True
+        if b == 5:
+            return False
+        if b == 6:
+            return True
+        if b == 8:
+            return True
+        if b == 9:
+            return False
+        if b == 10:
+            return True
+        if b == 11:
+            return True
+        if b == 12:
+            return True
+        else:
+            return False
+    if a == 8:
+        if b == 1:
+            return False
+        if b == 2:
+            return False
+        if b == 3:
+            return True
+        if b == 4:
+            return True
+        if b == 5:
+            return False
+        if b == 6:
+            return False
+        if b == 7:
+            return True
+        if b == 9:
+            return False
+        if b == 10:
+            return False
+        if b == 11:
+            return True
+        if b == 12:
+            return True
+        else:
+            return False
+    if a == 9:
+        if b == 1:
+            return False
+        if b == 2:
+            return False
+        if b == 3:
+            return False
+        if b == 4:
+            return False
+        if b == 5:
+            return True
+        if b == 6:
+            return True
+        if b == 7:
+            return False
+        if b == 8:
+            return False
+        if b == 10:
+            return True
+        if b == 11:
+            return False
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 10:
+        if b == 1:
+            return False
+        if b == 2:
+            return False
+        if b == 3:
+            return False
+        if b == 4:
+            return False
+        if b == 5:
+            return True
+        if b == 6:
+            return True
+        if b == 7:
+            return True
+        if b == 8:
+            return False
+        if b == 9:
+            return True
+        if b == 11:
+            return True
+        if b == 12:
+            return False
+        else:
+            return False
+    if a == 11:
+        if b == 1:
+            return False
+        if b == 2:
+            return False
+        if b == 3:
+            return False
+        if b == 4:
+            return False
+        if b == 5:
+            return False
+        if b == 6:
+            return True
+        if b == 7:
+            return True
+        if b == 8:
+            return True
+        if b == 9:
+            return False
+        if b == 10:
+            return True
+        if b == 12:
+            return True
+        else:
+            return False
+    if a == 12:
+        if b == 1:
+            return False
+        if b == 2:
+            return False
+        if b == 3:
+            return False
+        if b == 4:
+            return False
+        if b == 5:
+            return False
+        if b == 6:
+            return False
+        if b == 7:
+            return True
+        if b == 8:
+            return True
+        if b == 9:
+            return False
+        if b == 10:
+            return False
+        if b == 11:
+            return True
+        else:
+            return False
+    else:
+            return False
