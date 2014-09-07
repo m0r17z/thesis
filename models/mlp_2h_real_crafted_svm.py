@@ -111,11 +111,11 @@ def new_trainer(pars, data):
     # length of dataset should be 270000 (for no time-integration)
     n_report = 270000/batch_size
     max_iter = n_report * 100
-    noise_schedule = (max(1 - float(i) / max_iter, 1e-4) for i in itertools.count())
+    #noise_schedule = (max(1 - float(i) / max_iter, 1e-4) for i in itertools.count())
 
-    m = TangMlp(input_size, pars['n_hidden'], output_size,
+    m = Mlp(input_size, pars['n_hidden'], output_size,
             hidden_transfers=pars['hidden_transfers'], out_transfer='identity',
-            loss=squared_hinge, noise_schedule=noise_schedule, batch_size = batch_size,
+            loss=squared_hinge, batch_size = batch_size,
             optimizer=pars['optimizer'])
     climin.initialize.randomize_normal(m.parameters.data, 0, pars['par_std'])
 
