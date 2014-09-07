@@ -138,7 +138,7 @@ def new_trainer(pars, data):
     ])
 
     pause = climin.stops.ModuloNIterations(n_report)
-    reporter = KeyPrinter(['n_iter', 'train_loss', 'val_loss'])
+    reporter = KeyPrinter(['n_iter', 'train_loss', 'val_loss', 'emp_val_loss'])
 
     t = Trainer(
         m,
@@ -151,6 +151,18 @@ def new_trainer(pars, data):
 
 
 def make_report(pars, trainer, data):
+    data = h5.File('/nthome/maugust/thesis/train_val_test_binning_real_int.hdf5','r')
+    TX = data['test_set/test_set']
+    TZ = data['test_labels/real_test_labels']
+    TZ = one_hot(TZ,13)
+    current_pars = trainer.model.parameters.data
+    trainer.model.parameters.data[...] = trainer.best_pars
+    n_wrong = 1 - T.eq(T.argmax(trainer.model.exprs['output'], axis=1), T.argmax(trainer.model.exprs['target'], axis=1)).mean()
+    f_n_wrong = trainer.model.function(['inpt', 'target'], n_wrong)
+    emp_test_loss = f_n_wrong(TX, TZ)
+    trainer.model.parameters.data[...] = current_pars
+
     return {'train_loss': trainer.score(*trainer.eval_data['train']),
-            'val_loss': trainer.score(*trainer.eval_data['val'])}
+            'val_loss': trainer.score(*trainer.eval_data['val']),
+            'emp_test_loss': emp_test_loss}
 
