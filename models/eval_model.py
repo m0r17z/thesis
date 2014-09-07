@@ -57,19 +57,21 @@ def evaluate_mlp(args):
             Z_pos = np.argmax(TZ, axis=1)
 
             neighbour_fails = .0
+            relevant_fails = 0
 
             for i in np.arange(len(P_pos)):
                 if P_pos[i] > 0 and Z_pos[i] > 0 and P_pos[i] != Z_pos[i]:
+                    relevant_fails += 1
                     if is_neighbour(P_pos[i],Z_pos[i]):
                         neighbour_fails += 1
 
-            neighbour_fails /= len(P_pos)
+            neighbour_fails /= relevant_fails
 
 
             emp_loss_s = 'model achieved %f%% classification error on the test set' %emp_loss
-            f_p_s = 'model achieved %f%% false positives on the test set' %f_p
-            f_n_s = 'model achieved %f%% false negatives on the test set' %f_n
-            neigh_s = 'model achieved %f%% neighbour misspredictions on the test set' %neighbour_fails
+            f_p_s = '\nmodel achieved %f%% false positives on the test set' %f_p
+            f_n_s = '\nmodel achieved %f%% false negatives on the test set' %f_n
+            neigh_s = '\nmodel achieved %f%% neighbour misspredictions on the test set' %neighbour_fails
 
             print emp_loss_s
             print f_p_s
