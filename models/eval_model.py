@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Usage: eval_model.py <location> <data>
+"""Usage: eval_model.py <location> <data> <mode>
 
 """
 
@@ -19,6 +19,7 @@ from breze.learn.data import one_hot
 def evaluate_mlp(args):
     dir = os.path.abspath(args['<location>'])
     data = os.path.abspath(args['<data>'])
+    mode = args['<mode>']
     os.chdir(dir)
     cps = contrib.find_checkpoints('.')
 
@@ -43,8 +44,8 @@ def evaluate_mlp(args):
             f_neg = T.mean(T.eq(T.argmax(trainer.model.exprs['output'], axis=1),0) * T.neq(T.argmax(trainer.model.exprs['target'], axis=1), 0))
             f_f_neg = trainer.model.function(['inpt', 'target'], f_neg)
 
-            if 'hidden_conv_to_hidden_conv_0' in trainer.model.exprs:
-                print 'detected CNN model'
+            if mode == 'cnn':
+                print 'using cnn model'
                 emp_loss = trainer.model.apply_minibatches_function(f_n_wrong,TX,TZ)
                 f_p = trainer.model.apply_minibatches_function(f_f_pos,TX,TZ)
                 f_n = trainer.model.apply_minibatches_function(f_f_neg,TX,TZ)
