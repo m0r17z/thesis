@@ -60,9 +60,6 @@ def load_data(pars):
    Z = data['trainig_labels/real_train_labels']
    VX = data['validation_set/val_set']
    VZ = data['validation_labels/real_val_labels']
-   Z = one_hot(Z,13)
-   VZ = one_hot(VZ,13)
-
 
    return (X, Z), (VX, VZ)
 

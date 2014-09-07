@@ -87,12 +87,12 @@ class TangMlp(Mlp):
     def __init__(
         self, n_inpt, n_hiddens, n_output, hidden_transfers, out_transfer, loss, optimizer, batch_size, noise_schedule,
         max_iter=1000, verbose=False):
-        super(TangMlp, self).__init__(n_inpt, n_hiddens, n_output, hidden_transfers, out_transfer, loss, optimizer, batch_size,
+        super(TangMlp, self).__init__(n_inpt, n_hiddens, n_output, hidden_transfers, out_transfer, loss, False, optimizer, batch_size,
             max_iter, verbose)
 
         self.noise_schedule = noise_schedule
 
-    def _make_args(self, X, Z):
+    def _make_args(self, X, Z, imp_weight=None):
         args = super(TangMlp, self)._make_args(X, Z)
         def corrupt(x, level):
             return x + np.random.normal(0, level, x.shape).astype(theano.config.floatX)

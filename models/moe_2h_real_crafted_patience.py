@@ -24,7 +24,7 @@ def preamble(i):
     slurm_preamble = '#SBATCH -J MoE_2hiddens_on_us_real_%d\n' % (i)
     slurm_preamble += '#SBATCH --mem=4000\n'
     slurm_preamble += '#SBATCH --signal=INT@%d\n' % (minutes_before_3_hour*60)
-    slurm_preamble += '#SBATCH --exclude=cn-6,cn-7,cn-8\n'
+    slurm_preamble += '#SBATCH --exclude=cn-5,cn-6,cn-7,cn-8\n'
     return pre + slurm_preamble
 
 
@@ -110,7 +110,7 @@ def new_trainer(pars, data):
     interrupt = climin.stops.OnSignal()
     print dir(climin.stops)
     stop = climin.stops.Any([
-        climin.stops.Patience(m.exprs['val_loss'], max_iter),
+        climin.stops.Patience('val_loss', max_iter, 1.2),
         climin.stops.OnSignal(signal.SIGTERM),
         #climin.stops.NotBetterThanAfter(1e-1,500,key='train_loss'),
     ])

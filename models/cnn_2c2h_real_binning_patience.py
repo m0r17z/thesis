@@ -42,8 +42,8 @@ def draw_pars(n=1):
             return 'rmsprop', sample
 
     grid = {
-        'n_hidden_full': [[200,200],[500,500],[1000,1000],[700,700],[100,100],[50,50]],
-        'n_hidden_conv': [[16,32],[32,64],[64,128],[16,64],[32,128],[16,128]],
+        'n_hidden_full': [[200,200],[500,500],[100,100],[50,50]],
+        'n_hidden_conv': [[16,32],[32,64]],
         'hidden_full_transfers': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
         'hidden_conv_transfers': [['sigmoid','sigmoid'], ['tanh','tanh'], ['rectifier','rectifier']],
         'filter_shapes': [[[5,5],[5,5]],[[6,6],[6,6]],[[6,6],[5,5]],[[5,5],[4,4]],[[7,7],[6,6]],[[8,8],[7,7]]],
@@ -116,7 +116,7 @@ def new_trainer(pars, data):
     interrupt = climin.stops.OnSignal()
     print dir(climin.stops)
     stop = climin.stops.Any([
-        climin.stops.Patience(m.exprs['val_loss'], max_iter),
+        climin.stops.Patience('val_loss', max_iter, 1.2),
         climin.stops.OnSignal(signal.SIGTERM),
         #climin.stops.NotBetterThanAfter(1e-1,500,key='train_loss'),
     ])

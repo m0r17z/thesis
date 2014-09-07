@@ -109,7 +109,7 @@ def new_trainer(pars, data):
     interrupt = climin.stops.OnSignal()
     print dir(climin.stops)
     stop = climin.stops.Any([
-        climin.stops.Patience(m.exprs['val_loss'], max_iter),
+        climin.stops.Patience('val_loss', max_iter, 1.2),
         climin.stops.OnSignal(signal.SIGTERM),
         #climin.stops.NotBetterThanAfter(1e-1,500,key='train_loss'),
     ])

@@ -2,7 +2,7 @@
 import numpy as np
 import h5py as h5
 from utils import determine_label
-from generate_datasets import generate_train_val_test_set
+from generate_datasets_regression import generate_train_val_test_set
 from sklearn.preprocessing import scale
 
 def generate_real_dataset_binning(center=True):
