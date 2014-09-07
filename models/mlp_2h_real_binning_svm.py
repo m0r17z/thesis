@@ -199,7 +199,7 @@ def make_report(pars, trainer, data):
     print f_p_s
     print f_n_s
     print neigh_s
-    with open(os.path.join(dir,'eval_result.txt'),'w') as f:
+    with open(os.path.join('.','eval_result.txt'),'w') as f:
         f.write(emp_loss_s)
         f.write(f_p_s)
         f.write(f_n_s)
