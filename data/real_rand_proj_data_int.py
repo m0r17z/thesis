@@ -1,15 +1,27 @@
 
+"""Usage:
+    real_rand_proj_data_int.py <path> <sparse> <eps>
+
+"""
+
+
 import numpy as np
 import h5py as h5
+import os
 from utils import determine_label
 from generate_datasets import generate_train_val_test_set
-from sklearn.preprocessing import scale
+from sklearn.random_projection import johnson_lindenstrauss_min_dim
+from sklearn import random_projection
 
-def generate_real_dataset_binning(center=True):
+import docopt
+
+
+def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('/nthome/maugust/thesis/samples.txt')
-    labels = open('/nthome/maugust/thesis/labels.txt')
-    annotations = open('/nthome/maugust/thesis/annotations.txt')
+    samples = open(os.path.join(data_path, 'samples_int.txt'))
+    labels = open(os.path.join(data_path, 'labels_int.txt'))
+    annotations = open(os.path.join(data_path, 'annotations_int.txt'))
+    out_f = open(os.path.join(data_path,'rp_out'),'w')
 
     bad_samples = []
     real_labels = []
@@ -25,9 +37,10 @@ def generate_real_dataset_binning(center=True):
     for data in annotations:
         annotation_list = data.split(';')
 
-    print 'found %i qpoint lists.' % len(qpoint_lists)
-    print 'found %i labels.' % len(label_list)
-    print 'found %i annotations.' % len(annotation_list)
+    out_s = 'found %i qpoint lists.\n' % len(qpoint_lists) + 'found %i labels.\n' % len(label_list) + 'found %i annotations.\n\n' % len(annotation_list)
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
 
     for list_ind in np.arange(len(qpoint_lists)):
         bad = False
@@ -66,10 +79,13 @@ def generate_real_dataset_binning(center=True):
         annotation_list.pop(real_ind)
         ind += 1
 
-    print str(len(qpoint_lists)) + ' samples remain after purging.'
-    print str(len(real_labels)) + ' labels remain after purging.'
-    print str(len(annotation_list)) + ' annotations remain after purging.'
-    print 'percentages of the labels are %s' %str(label_count/len(qpoint_lists))
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = str(len(qpoint_lists)) + ' samples remain after purging.\n' + str(len(real_labels)) + ' labels remain after purging.\n'\
+            + str(len(annotation_list)) + ' annotations remain after purging.\n' + 'percentages of the labels are %s\n\n' %str(label_count/len(qpoint_lists))
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
+
     samples.close()
     labels.close()
     annotations.close()
@@ -80,23 +96,47 @@ def generate_real_dataset_binning(center=True):
 
     # ASSUMPTION: relevant area is never less than 0.7 meters and more than 4.4 meters on the x-axis, 2.5 meters to both sides on the y-axis
     # and 2 meters on the z-axis away from the sensors
-    bin_cm = 10
+    bin_cm = 3
     max_x_cm = 440
     min_x_cm = 70
     max_y_cm = 250
     max_z_cm = 200
-    nr_z_intervals = 2
 
-    x_range = max_x_cm/bin_cm - min_x_cm/bin_cm
-    y_range = max_y_cm*2/bin_cm
-    z_range = nr_z_intervals
+    x_range = max_x_cm / bin_cm - min_x_cm / bin_cm
+    y_range = max_y_cm * 2 / bin_cm
+    z_range = max_z_cm / bin_cm
 
-    f = h5.File("./binning_real.hdf5", "w")
-    f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = 'length of data in original space: %d\n\n' %(x_range*y_range*z_range)
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
+
+    # compute a conservative estimate of the number of latent dimensions required to guarantuee the given epsilons
+    n_dims = johnson_lindenstrauss_min_dim(len(qpoint_lists),eps)
+
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = 'number of latent dimensions needed to guarantee %f epsilon is %f\n\n' %(eps, n_dims)
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
+
+    f_path = os.path.join(data_path,'rp_real_sparse_int.hdf5') if sparse else os.path.join(data_path,'rp_real_gauss_int.hdf5')
+    print f_path
+    f = h5.File(f_path, "w")
+    f.create_dataset('data_set/data_set', (len(qpoint_lists), n_dims), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
 
+    transformer = random_projection.SparseRandomProjection(n_components=n_dims) if sparse else random_projection.GaussianRandomProjection(n_components=n_dims)
+    if sparse:
+        print 'performing projection with sparse matrix'
+    else:
+        print 'performing projection with gaussian matrix'
+
+    # this is not the way it's supposed to be done BUT the proper training set doesn't fit into the memory
+    transformer.components_ = transformer._make_random_matrix(n_dims, x_range*y_range*z_range)
     last_per = -1
 
     for ind, qpoint_list in enumerate(qpoint_lists):
@@ -105,8 +145,8 @@ def generate_real_dataset_binning(center=True):
         for qpoint in qpoint_list:
             x = int(float(qpoint[0])*100) / bin_cm
             y = (int(float(qpoint[1])*100) + max_y_cm) / bin_cm
-            z = int(float(qpoint[2])*100) > (max_z_cm / nr_z_intervals)
-            if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0:
+            z = int(float(qpoint[2])*100) / bin_cm
+            if x - min_x_cm/bin_cm < 0 or x - min_x_cm/bin_cm > x_range-1 or y > y_range-1 or y < 0 or z > z_range-1 or z < 0:
                 continue
             pow = float(qpoint[4])
             if grid[x-min_x_cm/bin_cm][y][z] != 0:
@@ -117,26 +157,42 @@ def generate_real_dataset_binning(center=True):
                 grid[x-min_x_cm/bin_cm][y][z] = pow
             ps += 1
 
-        # unroll the grid into a vector?!
-        f['data_set/data_set'][ind] = grid.flatten()
+        f['data_set/data_set'][ind] = transformer.transform(np.reshape(grid,(1,-1)))
         f['labels/real_labels'][ind] = real_labels[ind]
         f['annotations/annotations'][ind] = annotation_list[ind]
         curr_percent = int(float(ind) / len(qpoint_lists) * 100)
         if last_per != curr_percent:
             last_per = curr_percent
-            print 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
+            out_f = open(os.path.join(data_path,'rp_out'),'a')
+            out_s = 'have now looked at %i%% of the data.\n' % int(float(ind) / len(qpoint_lists) * 100)
+            print out_s
+            out_f.write(out_s)
+            out_f.close()
 
+    print 'done with projecting onto the grid (without binning)'
     print 'percentage of point collision: ' + str(float(pcol)/ps)
     print 'number of samples: ' +str(len(f['data_set/data_set']))
     print 'dimensionality of the samples: ' +str(len(f['data_set/data_set'][0]))
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
-    f['data_set/data_set'][...] = scale(f['data_set/data_set'], with_mean=center)
+    out_f = open(os.path.join(data_path,'rp_out'),'a')
+    out_s = 'projection done, new dimension is %d\n\n' %len(f['data_set/data_set'][0])
+    print out_s
+    out_f.write(out_s)
+    out_f.close()
 
     f.close()
 
-    generate_train_val_test_set("./binning_real.hdf5", "train_val_test_binning_real.hdf5")
+    if sparse:
+        generate_train_val_test_set(os.path.join(data_path,"rp_real_sparse_int.hdf5"), os.path.join(data_path,"train_val_test_rp_real_sparse_int.hdf5"))
+    else:
+        generate_train_val_test_set(os.path.join(data_path,"rp_real_gauss_int.hdf5"), os.path.join(data_path,"train_val_test_rp_real_gauss_int.hdf5"))
 
 if __name__ == '__main__':
-    generate_real_dataset_binning()
+    #args = docopt.docopt(__doc__)
+    #print args
+    #eps = float(args['<eps>'])
+    #sparse = args['<sparse>']
+    #path = args['<path>']
+    generate_real_dataset_rp('/nthome/maugust/thesis', True, 0.3)

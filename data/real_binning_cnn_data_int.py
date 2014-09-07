@@ -3,13 +3,13 @@ import numpy as np
 import h5py as h5
 from utils import determine_label
 from generate_datasets import generate_train_val_test_set
-from sklearn.preprocessing import scale
+import os
 
-def generate_real_dataset_binning(center=True):
+def generate_real_dataset_binning_cnn(data_path):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('/nthome/maugust/thesis/samples.txt')
-    labels = open('/nthome/maugust/thesis/labels.txt')
-    annotations = open('/nthome/maugust/thesis/annotations.txt')
+    samples = open(os.path.join(data_path,'samples_int.txt'))
+    labels = open(os.path.join(data_path,'labels_int.txt'))
+    annotations = open(os.path.join(data_path,'annotations_int.txt'))
 
     bad_samples = []
     real_labels = []
@@ -91,8 +91,8 @@ def generate_real_dataset_binning(center=True):
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("./binning_real.hdf5", "w")
-    f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
+    f = h5.File(os.path.join(data_path,"binning_real_cnn_int.hdf5"), "w")
+    f.create_dataset('data_set/data_set', (len(qpoint_lists),z_range*x_range*y_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
     f.create_dataset('annotations/annotations', (len(annotation_list),), dtype=dt)
@@ -100,24 +100,26 @@ def generate_real_dataset_binning(center=True):
     last_per = -1
 
     for ind, qpoint_list in enumerate(qpoint_lists):
-        grid = np.zeros((x_range, y_range, z_range))
+        grid = np.zeros((z_range, x_range, y_range))
 
         for qpoint in qpoint_list:
             x = int(float(qpoint[0])*100) / bin_cm
             y = (int(float(qpoint[1])*100) + max_y_cm) / bin_cm
+            # this actually only works if z_range == 2
             z = int(float(qpoint[2])*100) > (max_z_cm / nr_z_intervals)
             if x < min_x_cm/bin_cm or x > max_x_cm/bin_cm-1 or y > max_y_cm*2/bin_cm-1 or y < 0:
                 continue
             pow = float(qpoint[4])
-            if grid[x-min_x_cm/bin_cm][y][z] != 0:
+            if grid[z][x-min_x_cm/bin_cm][y] != 0:
                 pcol += 1
-                if grid[x-min_x_cm/bin_cm][y][z] < pow:
-                    grid[x-min_x_cm/bin_cm][y][z] = pow
+                if grid[z][x-min_x_cm/bin_cm][y] < pow:
+                    grid[z][x-min_x_cm/bin_cm][y] = pow
             else:
-                grid[x-min_x_cm/bin_cm][y][z] = pow
+		        grid[z][x-min_x_cm/bin_cm][y] = pow
             ps += 1
 
         # unroll the grid into a vector?!
+
         f['data_set/data_set'][ind] = grid.flatten()
         f['labels/real_labels'][ind] = real_labels[ind]
         f['annotations/annotations'][ind] = annotation_list[ind]
@@ -132,11 +134,10 @@ def generate_real_dataset_binning(center=True):
     print 'number of labels: ' +str(len(f['labels/real_labels']))
     print 'number of annotations: ' +str(len(f['annotations/annotations']))
 
-    f['data_set/data_set'][...] = scale(f['data_set/data_set'], with_mean=center)
-
     f.close()
 
-    generate_train_val_test_set("./binning_real.hdf5", "train_val_test_binning_real.hdf5")
+    generate_train_val_test_set(os.path.join(data_path,"binning_real_cnn_int.hdf5"), os.path.join(data_path,"train_val_test_binning_real_cnn_int.hdf5"))
+
 
 if __name__ == '__main__':
-    generate_real_dataset_binning()
+    generate_real_dataset_binning_cnn('/nthome/maugust/thesis')

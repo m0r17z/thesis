@@ -8,9 +8,9 @@ from sklearn.preprocessing import scale
 
 def generate_real_dataset_crafted():
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('./samples.txt')
-    labels = open('./labels.txt')
-    annotations = open('./annotations.txt')
+    samples = open('./samples_int.txt')
+    labels = open('./labels_int.txt')
+    annotations = open('./annotations_int.txt')
 
     bad_samples = []
     real_labels = []
@@ -182,7 +182,7 @@ def generate_real_dataset_crafted():
             last_per = curr_percent
             print 'have now looked at %i%% of the data.' % int(float(ind) / len(qpoint_lists) * 100)
 
-    f = h5.File("./crafted_real.hdf5", "w")
+    f = h5.File("./crafted_real_int.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(good_samples),156), dtype='f')
     f.create_dataset('labels/real_labels', (len(good_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -210,7 +210,7 @@ def generate_real_dataset_crafted():
 
     f.close()
 
-    generate_train_val_test_set("./crafted_real.hdf5", "train_val_test_crafted_real.hdf5")
+    generate_train_val_test_set("./crafted_real_int.hdf5", "train_val_test_crafted_real_int.hdf5")
 
 
 if __name__ == '__main__':

@@ -7,9 +7,9 @@ from sklearn.preprocessing import scale
 
 def generate_real_dataset_binning(center=True):
     ################################################ LOADING AND CLEANING THE DATA #########################################
-    samples = open('/nthome/maugust/thesis/samples.txt')
-    labels = open('/nthome/maugust/thesis/labels.txt')
-    annotations = open('/nthome/maugust/thesis/annotations.txt')
+    samples = open('/nthome/maugust/thesis/samples_int.txt')
+    labels = open('/nthome/maugust/thesis/labels_int.txt')
+    annotations = open('/nthome/maugust/thesis/annotations_int.txt')
 
     bad_samples = []
     real_labels = []
@@ -91,7 +91,7 @@ def generate_real_dataset_binning(center=True):
     y_range = max_y_cm*2/bin_cm
     z_range = nr_z_intervals
 
-    f = h5.File("./binning_real.hdf5", "w")
+    f = h5.File("./binning_real_int.hdf5", "w")
     f.create_dataset('data_set/data_set', (len(qpoint_lists),x_range*y_range*z_range), dtype='f')
     f.create_dataset('labels/real_labels', (len(real_labels),), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
@@ -136,7 +136,7 @@ def generate_real_dataset_binning(center=True):
 
     f.close()
 
-    generate_train_val_test_set("./binning_real.hdf5", "train_val_test_binning_real.hdf5")
+    generate_train_val_test_set("./binning_real_int.hdf5", "train_val_test_binning_real_int.hdf5")
 
 if __name__ == '__main__':
     generate_real_dataset_binning()
