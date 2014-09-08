@@ -26,13 +26,14 @@ def evaluate(args):
         if not os.path.isdir(sub_dir):
             continue
         os.chdir(sub_dir)
+        print '>>> checking %s' %sub_dir
         with open('./eval_result.txt') as f:
             test_loss = float(f.readline().replace('model achieved ', '').replace('% classification error on the test set',''))
 
             if test_loss < best_loss:
                 best_loss = test_loss
                 best_exp = sub_dir
-                
+
     r_string = '>>> found the best deep svm in\n>>> %s\n>>> with a test loss of %f' %(best_exp, best_loss)
     print r_string
     with open(os.path.join(dir, 'result.txt'),'w') as result:
