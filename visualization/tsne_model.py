@@ -29,14 +29,14 @@ def visualize_tsne(args):
                 trainer.model.parameters.data[...] = trainer.best_pars
                 data = h5.File(data_dir,'r')
                 TX = data['test_set/test_set'][:5000]
-                TZ = data['test_labels/real_test_labels']
+                TZ = data['test_labels/real_test_labels'][:5000]
                 TZ = one_hot(TZ,13)
                 print 'data loaded.'
 
                 if args['<mode>'] == 'cnn':
-                    f_transformed = trainer.model.function(['inpt'],'mlp-layer-1-ouput')
+                    f_transformed = trainer.model.function(['inpt'],'mlp-layer-2-inpt')
                 else:
-                    f_transformed = trainer.model.function(['inpt'],'layer-1-ouput')
+                    f_transformed = trainer.model.function(['inpt'],'layer-2-inpt')
 
                 print 'transform-function generated.'
 

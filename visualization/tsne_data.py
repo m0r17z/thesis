@@ -22,7 +22,7 @@ def visualize_tsne(args):
 
     data = h5.File(data_dir,'r')
     TX = data['test_set/test_set'][:5000]
-    TZ = data['test_labels/real_test_labels']
+    TZ = data['test_labels/real_test_labels'][:5000]
     TZ = one_hot(TZ,13)
     n_input = TX.shape[1]
     print 'data loaded.'
