@@ -170,7 +170,7 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
 
         if not nr_samples > 90000:
             f['test_set/test_set'][nr_samples-1] = transformer.transform(np.reshape(grid,(1,-1)))
-            f['test_labels/real_test_abels'][nr_samples-1] = real_labels[ind]
+            f['test_labels/real_test_labels'][nr_samples-1] = real_labels[ind]
             f['test_annotations/test_annotations'][nr_samples-1] = annotation_list[ind]
             curr_percent = int(float(nr_samples) / 90000. * 100)
             if last_per != curr_percent:
