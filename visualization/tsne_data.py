@@ -7,6 +7,8 @@
 import cPickle
 import docopt
 import os
+import matplotlib
+matplotlib.use('PDF')
 import matplotlib.pyplot as plt
 import gzip
 import h5py as h5
@@ -33,7 +35,6 @@ def visualize_tsne(args):
     ax = fig.add_subplot(111)
     ax.scatter(TX_r[:, 0], TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.2)
     plt.savefig('/nthome/maugust/thesis/tsne_data.pdf')
-    plt.show()
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
