@@ -15,7 +15,7 @@ from breze.learn.tsne import Tsne
 from alchemie import contrib
 from breze.learn.data import one_hot
 
-def visualize_tsne():
+def visualize_tsne(args):
     model_dir = os.path.abspath(args['<model>'])
     data_dir = os.path.abspath(args['<data>'])
     os.chdir(model_dir)
