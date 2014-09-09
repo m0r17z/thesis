@@ -26,7 +26,7 @@ def visualize_tsne():
                 trainer = cPickle.load(fp)
                 trainer.model.parameters.data[...] = trainer.best_pars
                 data = h5.File(data_dir,'r')
-                TX = data['test_set/test_set'][...]
+                TX = data['test_set/test_set'][:5000]
                 TZ = data['test_labels/real_test_labels']
                 TZ = one_hot(TZ,13)
                 print 'data loaded.'
