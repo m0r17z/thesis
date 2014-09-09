@@ -16,6 +16,7 @@ import h5py as h5
 from breze.learn.tsne import Tsne
 from alchemie import contrib
 from breze.learn.data import one_hot
+import numpy as np
 
 def visualize_tsne(args):
     model_dir = os.path.abspath(args['<model>'])
@@ -41,6 +42,7 @@ def visualize_tsne(args):
                 print 'transform-function generated.'
 
                 trans_TX = f_transformed(TX)
+                trans_TX = np.array(trans_TX, dtype=np.float64)
                 print 'data transformed'
                 trans_n_input = trans_TX.shape[1]
                 trans_tsne = Tsne(trans_n_input, 2)
