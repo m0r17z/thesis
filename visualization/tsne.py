@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Usage: tsne.py <model> <data>
+"""Usage: tsne.py <model> <data> <mode>
 
 """
 
@@ -33,10 +33,27 @@ def visualize_tsne():
                 tsne = Tsne(n_input, 2)
                 TX_r = tsne.fit_transform(TX)
 
+                if args['<mode>'] == 'cnn':
+                    f_transformed = trainer.model.function(['inpt'],'mlp-layer-1-ouput')
+                else:
+                    f_transformed = trainer.model.function(['inpt'],'layer-1-ouput')
+
+                trans_TX = f_transformed(TX)
+                trans_n_input = trans_TX.shape[1]
+                trans_tsne = Tsne(trans_n_input, 2)
+                trans_TX_r = trans_tsne.fit_transform(trans_TX)
+
+
                 fig = plt.figure(figsize=(16, 16))
                 ax = fig.add_subplot(111)
                 ax.scatter(TX_r[:, 0], TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.2)
-                plt.savefig('/home/mo/fig.pdf')
+                plt.savefig('./tsne_input.pdf')
+                plt.show()
+
+                fig = plt.figure(figsize=(16, 16))
+                ax = fig.add_subplot(111)
+                ax.scatter(trans_TX_r[:, 0], trans_TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.2)
+                plt.savefig('./tsne_transformed.pdf')
                 plt.show()
 
 if __name__ == '__main__':
