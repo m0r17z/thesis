@@ -124,10 +124,10 @@ def generate_real_dataset_rp(data_path, sparse=False, eps=0.1):
     f_path = os.path.join(data_path,'rp_real_sparse.hdf5') if sparse else os.path.join(data_path,'rp_real_gauss.hdf5')
     print f_path
     f = h5.File(f_path, "w")
-    f.create_dataset('data_set/data_set', (90000, n_dims), dtype='f')
-    f.create_dataset('labels/real_labels', (90000,), dtype='i')
+    f.create_dataset('test_set/test_set', (90000, n_dims), dtype='f')
+    f.create_dataset('test_labels/real_test_labels', (90000,), dtype='i')
     dt = h5.special_dtype(vlen=unicode)
-    f.create_dataset('annotations/annotations', (90000,), dtype=dt)
+    f.create_dataset('test_annotations/test_annotations', (90000,), dtype=dt)
 
     transformer = random_projection.SparseRandomProjection(n_components=n_dims) if sparse else random_projection.GaussianRandomProjection(n_components=n_dims)
     if sparse:
