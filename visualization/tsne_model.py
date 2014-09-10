@@ -17,6 +17,7 @@ from breze.learn.tsne import Tsne
 from alchemie import contrib
 from breze.learn.data import one_hot
 import numpy as np
+from climin.util import minibatches
 
 def visualize_tsne(args):
     model_dir = os.path.abspath(args['<model>'])
@@ -36,13 +37,15 @@ def visualize_tsne(args):
 
                 if args['<mode>'] == 'cnn':
                     f_transformed = trainer.model.function(['inpt'],'mlp-layer-2-inpt')
-                else:
+                    print 'transform-function generated.'
+		    data = minibatches(TX, trainer.model.batch_size, 0)
+		    trans_TX = np.concatenate([f_transformed(element) for element in data], axis=0)
+		else:
                     f_transformed = trainer.model.function(['inpt'],'layer-2-inpt')
+		    print 'transform-function generated.'
+		    trans_TX = f_transformed(TX)
 
-                print 'transform-function generated.'
-
-                trans_TX = f_transformed(TX)
-                trans_TX = np.array(trans_TX, dtype=np.float64)
+                trans_TX = np.array(trans_TX, dtype=np.float32)
                 print 'data transformed'
                 trans_n_input = trans_TX.shape[1]
                 trans_tsne = Tsne(trans_n_input, 2)
