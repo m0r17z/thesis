@@ -66,7 +66,8 @@ def evaluate_mlp(args):
                     if is_neighbour(P_pos[i],Z_pos[i]):
                         neighbour_fails += 1
 
-            neighbour_fails /= relevant_fails
+            if not relevant_fails == 0:
+		neighbour_fails /= relevant_fails
 
 
             emp_loss_s = 'model achieved %f%% classification error on the test set' %emp_loss

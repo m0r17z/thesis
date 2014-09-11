@@ -26,7 +26,7 @@ def visualize_tsne(args):
     TZ = one_hot(TZ,13)
     n_input = TX.shape[1]
     print 'data loaded.'
-    tsne = Tsne(n_input, 2)
+    tsne = Tsne(n_input, 2, perplexity=5)
     print 'TSNE initialized.'
     TX_r = tsne.fit_transform(TX)
     print 'data TSNEd.'

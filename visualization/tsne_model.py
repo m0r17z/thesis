@@ -48,7 +48,7 @@ def visualize_tsne(args):
                 trans_TX = np.array(trans_TX, dtype=np.float32)
                 print 'data transformed'
                 trans_n_input = trans_TX.shape[1]
-                trans_tsne = Tsne(trans_n_input, 2)
+                trans_tsne = Tsne(trans_n_input, 2, perplexity=5)
                 print 'TSNE initialized.'
                 trans_TX_r = trans_tsne.fit_transform(trans_TX)
                 print 'data TSNEd'
