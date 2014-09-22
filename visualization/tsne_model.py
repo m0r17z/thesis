@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Usage: tsne_model.py <model> <data> <mode>
+"""Usage: tsne_model.py <model> <data> <mode> <output>
 
 """
 
@@ -55,8 +55,9 @@ def visualize_tsne(args):
 
                 fig = plt.figure(figsize=(16, 16))
                 ax = fig.add_subplot(111)
-                ax.scatter(trans_TX_r[:, 0], trans_TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.8, s=100)
-                plt.savefig('/nthome/maugust/thesis/tsne_model.pdf')
+                ax.scatter(trans_TX_r[:, 0], trans_TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.8, s=100, marker='o')
+                plt.legend()
+                plt.savefig(os.path.join('/nthome/maugust/thesis',args['<output>']))
 
 if __name__ == '__main__':
     args = docopt.docopt(__doc__)
