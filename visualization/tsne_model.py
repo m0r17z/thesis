@@ -55,8 +55,20 @@ def visualize_tsne(args):
 
                 fig = plt.figure(figsize=(16, 16))
                 ax = fig.add_subplot(111)
-                ax.scatter(trans_TX_r[:, 0], trans_TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.8, s=100, marker='o')
-                plt.legend()
+                TZ_am = TZ.argmax(axis=1)
+                ax.scatter(trans_TX_r[TZ_am==0, 0], trans_TX_r[TZ_am==0, 1], c='g', lw=0, alpha=1, s=100, marker='o')
+                ax.scatter(trans_TX_r[TZ_am==1, 0], trans_TX_r[TZ_am==1, 1], c='b', lw=0, alpha=1, s=100, marker='v')
+                ax.scatter(trans_TX_r[TZ_am==2, 0], trans_TX_r[TZ_am==2, 1], c='yellow', lw=0, alpha=1, s=100, marker='^')
+                ax.scatter(trans_TX_r[TZ_am==3, 0], trans_TX_r[TZ_am==3, 1], c='r', lw=0, alpha=1, s=100, marker='<')
+                ax.scatter(trans_TX_r[TZ_am==4, 0], trans_TX_r[TZ_am==4, 1], c='g', lw=0, alpha=1, s=100, marker='>')
+                ax.scatter(trans_TX_r[TZ_am==5, 0], trans_TX_r[TZ_am==5, 1], c='m', lw=0, alpha=1, s=100, marker='8')
+                ax.scatter(trans_TX_r[TZ_am==6, 0], trans_TX_r[TZ_am==6, 1], c='crimson', lw=0, alpha=1, s=100, marker='s')
+                ax.scatter(trans_TX_r[TZ_am==7, 0], trans_TX_r[TZ_am==7, 1], c='lawngreen', lw=0, alpha=1, s=100, marker='p')
+                ax.scatter(trans_TX_r[TZ_am==8, 0], trans_TX_r[TZ_am==8, 1], c='gold', lw=0, alpha=1, s=100, marker='*')
+                ax.scatter(trans_TX_r[TZ_am==9, 0], trans_TX_r[TZ_am==9, 1], c='darkorange', lw=0, alpha=1, s=100, marker='h')
+                ax.scatter(trans_TX_r[TZ_am==10, 0], trans_TX_r[TZ_am==10, 1], c='k', lw=0, alpha=1, s=100, marker='H')
+                ax.scatter(trans_TX_r[TZ_am==11, 0], trans_TX_r[TZ_am==11, 1], c='magenta', lw=0, alpha=1, s=100, marker='d')
+                ax.scatter(trans_TX_r[TZ_am==12, 0], trans_TX_r[TZ_am==12, 1], c='turquoise', lw=0, alpha=1, s=100, marker='D')
                 plt.savefig(os.path.join('/nthome/maugust/thesis',args['<output>']))
 
 if __name__ == '__main__':
