@@ -33,7 +33,7 @@ def visualize_tsne(args):
 
     fig = plt.figure(figsize=(16, 16))
     ax = fig.add_subplot(111)
-    ax.scatter(TX_r[:, 0], TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.2)
+    ax.scatter(TX_r[:, 0], TX_r[:, 1], c=TZ.argmax(axis=1), lw=0, alpha=0.2, s=100)
     plt.savefig(os.path.join('/nthome/maugust/thesis',args['<output>']))
 
 if __name__ == '__main__':
